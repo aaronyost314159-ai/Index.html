@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-  <title>i99t Meta Engine · MomentIT · HRAS · SCM · φ-Field</title>
+  <title>i99t Meta Engine · MomentIT · HRAS · SCM · φ-Field Console</title>
 
   <!-- Tailwind + Inter -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,6 +21,11 @@
       --ink-main: #e5e7eb;  /* gray-200 */
       --accent:  #22c55e;   /* emerald-500 */
       --accent-soft: rgba(34, 197, 94, 0.14);
+
+      /* φ-console vars */
+      --bg:#0b0f14;--ink:#d9e1ea;--muted:#9aa7b6;--line:#18202b;
+      --pane:rgba(13,17,23,.78);--pane-strong:rgba(13,17,23,.88);
+      --accent-phi:#00CED1;--bubble-user:#341C25;--bubble-bot:#2E2A1C;
     }
 
     body {
@@ -92,6 +97,8 @@
       padding: 0.75rem;
       max-height: 100vh;
       overflow-y: auto;
+      position: relative;
+      z-index: 1;
     }
 
     /* Shared cards for dark docs (axioms / HRAS / SCM) */
@@ -191,7 +198,7 @@
       white-space: pre-wrap;
     }
 
-    /* MomentIT visuals (scoped to .momentit-root) */
+    /* MomentIT visuals */
     .momentit-root {
       position: relative;
       background-color: #f7f3f0;
@@ -200,8 +207,6 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
     .momentit-body {
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
       min-height: 100%;
     }
     .momentit-chat-field {
@@ -289,125 +294,128 @@
       display: none;
     }
 
-    /* φ-Field Console (scoped to #phi-console-root) */
-    #phi-console-root{
-      position:relative;
-      min-height:420px;
-      background:#05080d;
-      color:#d9e1ea;
-      font:16px/1.45 -apple-system,system-ui,Segoe UI,Roboto,Inter,Helvetica,Arial;
-      overflow:hidden;
-    }
-    #phi-bg{
-      position:absolute;
+    /* φ-Field console / phyllo UI (scoped to view-chat) */
+    #view-chat #bg{
+      position:fixed;
       top:0;left:0;right:0;bottom:0;
       width:100%;height:100%;
       z-index:0;
       display:block;
       background:#05080d;
     }
-    #phi-console-root .top-bar{
-      position:absolute;top:0;left:0;right:0;height:40px;z-index:3;
+    #view-chat .top-bar{
+      position:fixed;top:0;left:0;right:0;height:40px;z-index:3;
       backdrop-filter:blur(4px);background:rgba(13,17,23,.75);
-      border-bottom:1px solid #18202b;display:flex;align-items:center;
+      border-bottom:1px solid var(--line);display:flex;align-items:center;
       gap:12px;padding:0 14px;
     }
-    #phi-console-root .file-btn{
-      padding:0;font-size:20px;background:0 0;border:0;color:#d9e1ea;
+    #view-chat .file-btn{
+      padding:0;font-size:20px;background:0 0;border:0;color:var(--ink);
       cursor:pointer;line-height:1;transition:color .15s,transform .15s,opacity .15s;
     }
-    #phi-console-root .pane{
-      position:absolute;top:40px;bottom:56px;left:0;right:0;z-index:1;
+    #view-chat .pane{
+      position:fixed;top:40px;bottom:0;left:0;right:0;z-index:1;
       display:flex;justify-content:center;pointer-events:none;
     }
-    #phi-console-root .chatbox{
+    #view-chat .chatbox{
       width:min(980px,100%);height:100%;display:flex;flex-direction:column;
-      padding:0 12px 12px;pointer-events:auto;
+      padding:0 12px 94px;pointer-events:auto;
     }
-    #phi-console-root .stream{
+    #view-chat .stream{
       flex:1;overflow:auto;padding:10px 6px;
     }
-    #phi-console-root .row{
+    #view-chat .row{
       display:flex;gap:10px;margin:8px 0;
     }
-    #phi-console-root .row.user{justify-content:flex-end;}
-    #phi-console-root .row.emerge{
+    #view-chat .row.user{justify-content:flex-end;}
+    #view-chat .row.emerge{
       opacity:0;transform:translateY(8px);
       transition:opacity .5s ease-out,transform .5s ease-out;
     }
-    #phi-console-root .row.emerge.active{
+    #view-chat .row.emerge.active{
       opacity:1;transform:translateY(0);
     }
-    #phi-console-root .bubble{
+    #view-chat .bubble{
       max-width:38%;padding:12px 14px;border-radius:20px;border:none;
-      box-shadow:0 1px 0 rgba(0,0,0,.2);color:#d9e1ea;
+      box-shadow:0 1px 0 rgba(0,0,0,.2);color:var(--ink);
       white-space:pre-wrap;
     }
-    #phi-console-root .bubble.user{background:#341C25;color:#fff;}
-    #phi-console-root .bubble.bot{background:#2E2A1C;}
-    #phi-console-root .meta{
-      color:#9aa7b6;font-size:12px;margin-top:6px;
+    #view-chat .bubble.user{background:var(--bubble-user);color:#fff;}
+    #view-chat .bubble.bot{background:var(--bubble-bot);}
+    #view-chat .meta{
+      color:var(--muted);font-size:12px;margin-top:6px;
     }
-    #phi-console-root .controls{
-      position:absolute;left:0;right:0;bottom:0;z-index:3;
-      background:linear-gradient(180deg,rgba(8,12,18,0),rgba(13,17,23,.78));
-      border-top:1px solid #18202b;
+    #view-chat .controls{
+      position:fixed;left:0;right:0;bottom:0;z-index:3;
+      background:linear-gradient(180deg,rgba(8,12,18,0),var(--pane));
+      border-top:1px solid var(--line);
     }
-    #phi-console-root .inputbar{
+    #view-chat .inputbar{
       max-width:980px;margin:0 auto;padding:10px 12px;
       display:flex;gap:8px;align-items:center;
     }
-    #phi-console-root .inputbar input[type=text]{
-      flex:1;padding:12px;border-radius:10px;border:1px solid #18202b;
-      background:#0a1018;color:#d9e1ea;
+    #view-chat .inputbar input[type=text]{
+      flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);
+      background:#0a1018;color:var(--ink);
     }
-    #phi-console-root .btn{
-      padding:10px 14px;border:1px solid #18202b;
-      background:#121a26;color:#d9e1ea;border-radius:10px;
+    #view-chat .btn{
+      padding:10px 14px;border:1px solid var(--line);
+      background:#121a26;color:var(--ink);border-radius:10px;
     }
-    #phi-console-root .btn:active{transform:translateY(1px);}
-    #phi-console-root a{
-      color:#00CED1;text-decoration:none;word-break:break-all;
+    #view-chat .btn:active{transform:translateY(1px);}
+    #view-chat a{
+      color:var(--accent-phi);text-decoration:none;word-break:break-all;
     }
-    #phi-console-root .modal{
-      position:absolute;inset:0;z-index:99;background:rgba(0,0,0,.75);
+    #view-chat .modal{
+      position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.75);
       display:none;justify-content:center;align-items:center;
       backdrop-filter:blur(4px);
     }
-    #phi-console-root .modal.open{display:flex;}
-    #phi-console-root .modal-content{
-      background:rgba(13,17,23,.88);border-radius:12px;width:90%;
+    #view-chat .modal.open{display:flex;}
+    #view-chat .modal-content{
+      background:var(--pane-strong);border-radius:12px;width:90%;
       max-width:500px;height:80%;display:flex;flex-direction:column;
-      box-shadow:0 4px 30px rgba(0,0,0,.5);border:1px solid #18202b;
+      box-shadow:0 4px 30px rgba(0,0,0,.5);border:1px solid var(--line);
     }
-    #phi-console-root .modal-header{
+    #view-chat .modal-header{
       padding:12px 16px;display:flex;justify-content:space-between;
-      align-items:center;border-bottom:1px solid #18202b;
+      align-items:center;border-bottom:1px solid var(--line);
     }
-    #phi-console-root .modal-close-btn{
-      background:0 0;border:0;color:#d9e1ea;font-size:24px;
+    #view-chat .modal-close-btn{
+      background:0 0;border:0;color:var(--ink);font-size:24px;
       cursor:pointer;line-height:1;
     }
-    #phi-console-root .modal-list{
+    #view-chat .modal-list{
       flex:1;overflow:auto;padding:10px;
     }
-    #phi-console-root .file-item{
+    #view-chat .file-item{
       padding:12px;margin-bottom:8px;background:rgba(46,42,28,.4);
-      border-radius:8px;border-left:3px solid #00CED1;
+      border-radius:8px;border-left:3px solid var(--accent-phi);
       word-wrap:break-word;font-size:14px;
     }
-    #phi-console-root .file-item-time{
-      display:block;color:#9aa7b6;font-size:11px;margin-top:4px;
+    #view-chat .file-item-time{
+      display:block;color:var(--muted);font-size:11px;margin-top:4px;
     }
     @media (max-width:520px){
-      #phi-console-root .bubble{max-width:86%}
-      #phi-console-root .modal-content{width:100%;height:100%;border-radius:0}
+      #view-chat .bubble{max-width:86%}
+      #view-chat .modal-content{width:100%;height:100%;border-radius:0}
+    }
+    @media (min-width:768px){
+      #view-chat .top-bar{
+        left:16rem;
+      }
+      #view-chat .pane{
+        left:16rem;
+      }
+      #view-chat .controls{
+        left:16rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="meta-shell">
-    <!-- LEFT NAV / KERNEL CONTROL PANEL -->
+    <!-- LEFT NAV -->
     <aside
       class="meta-nav w-full md:w-64 px-4 py-4 flex md:flex-col gap-3 md:gap-4"
     >
@@ -464,7 +472,7 @@
             <span class="meta-nav-pill">Actuation</span>
           </button>
           <button class="meta-nav-button" data-target="view-chat">
-            <span>Chat / φ-Field Console</span>
+            <span>Chat / Groq Integration Shell</span>
             <span class="meta-nav-pill">LLM</span>
           </button>
         </div>
@@ -482,12 +490,11 @@
 
     <!-- MAIN PANEL -->
     <main class="meta-main">
-      <!-- VIEW 1: MOMENTIT OS (UI SHELL) -->
+      <!-- VIEW 1: MOMENTIT -->
       <section id="view-momentit" data-view>
         <div
           class="momentit-root max-w-xl mx-auto relative z-10 p-4 sm:p-6 md:p-8"
         >
-          <!-- Sworl background -->
           <div class="sworl-background">
             <div class="sworl-blob" id="blob-1"></div>
             <div class="sworl-blob" id="blob-2"></div>
@@ -498,7 +505,6 @@
             id="momentit-app"
             class="momentit-body relative z-20 space-y-4"
           >
-            <!-- Ping Banner -->
             <div
               id="ping-banner"
               class="somatic-ping-banner p-3 sm:p-4 font-semibold text-sm sm:text-base sticky top-0 rounded-xl bg-white/70 backdrop-blur"
@@ -506,7 +512,6 @@
               MomentIT: You are here again.
             </div>
 
-            <!-- Chat field -->
             <div
               class="momentit-chat-field flex flex-col space-y-3 rounded-xl"
             >
@@ -595,16 +600,15 @@
           class="mt-4 text-[0.7rem] text-slate-400 text-center max-w-xl mx-auto"
         >
           <span class="font-semibold text-slate-200">Note:</span>
-          this view hosts the MomentIT UI. To attach your original
-          Firebase / T-Suite logic, mount it in
+          attach your original MomentIT logic in
           <span class="font-mono text-emerald-300"
             >attachMomentITScripts()</span
           >
-          in the kernel script at the bottom of this file.
+          in the kernel script.
         </p>
       </section>
 
-      <!-- VIEW 2: STRUCTURAL AXIOM REPORT (i99t) -->
+      <!-- VIEW 2: AXIOMS -->
       <section id="view-axioms" data-view class="hidden">
         <div class="max-w-4xl mx-auto p-2 sm:p-4 md:p-6">
           <header class="text-center mb-8">
@@ -622,7 +626,6 @@
             ></div>
           </header>
 
-          <!-- 1. Kernel Axiom -->
           <section class="mb-10">
             <h2
               class="text-2xl font-bold mb-4 text-sky-400 border-b border-sky-600 pb-2"
@@ -672,7 +675,6 @@
             </div>
           </section>
 
-          <!-- 2. DIVLR -->
           <section class="mb-10">
             <h2
               class="text-2xl font-bold mb-4 text-sky-400 border-b border-sky-600 pb-2"
@@ -709,7 +711,6 @@
             </div>
           </section>
 
-          <!-- 3. Mechanics -->
           <section class="mb-10">
             <h2
               class="text-2xl font-bold mb-4 text-sky-400 border-b border-sky-600 pb-2"
@@ -748,7 +749,6 @@
             </div>
           </section>
 
-          <!-- 4. Sovereign Protocols -->
           <section class="mb-10">
             <h2
               class="text-2xl font-bold mb-4 text-sky-400 border-b border-sky-600 pb-2"
@@ -761,12 +761,8 @@
                 A. Self-Forgiveness Axiom
               </h3>
               <p class="text-sm text-gray-300 mb-1">
-                Deletes the guilt variable — which is just structural
-                violence against self, extended in time.
-              </p>
-              <p class="text-xs text-gray-400 border-l pl-3 mt-2">
-                Goal: delete the noisy Observer and drop into the
-                Axial Point — the place you act from, not at.
+                Deletes the guilt variable — structural violence against
+                self, extended in time.
               </p>
             </div>
 
@@ -775,19 +771,15 @@
                 B. Irreversible Covenant
               </h3>
               <p class="text-sm text-gray-300 mb-1">
-                A commitment to an outer role (e.g. fatherhood) that is
+                Commitment to an outer role (e.g. fatherhood) that is
                 not contingent on the recipient’s behavior.
-              </p>
-              <p class="text-xs text-gray-400 border-l pl-3 mt-2">
-                It locks the lattice into shape by forcing action to
-                match law, regardless of weather.
               </p>
             </div>
           </section>
         </div>
       </section>
 
-      <!-- VIEW 3: HRAS BLUEPRINT -->
+      <!-- VIEW 3: HRAS -->
       <section id="view-hras" data-view class="hidden">
         <div class="max-w-4xl mx-auto p-2 sm:p-4 md:p-6">
           <h1
@@ -800,7 +792,6 @@
             Funnel
           </p>
 
-          <!-- Definition panel -->
           <div
             id="definition-panel"
             class="bg-[#161b22] p-4 sm:p-5 rounded-lg mb-6 shadow-xl border border-[#238636]"
@@ -820,7 +811,6 @@
             </p>
           </div>
 
-          <!-- Core modules -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
             <div
               id="RCE"
@@ -845,7 +835,6 @@
             </div>
           </div>
 
-          <!-- Axioms chips -->
           <h3
             class="text-sm sm:text-lg font-semibold text-[#79c0ff] mb-3 border-b border-[#238636] pb-2"
           >
@@ -880,11 +869,9 @@
             </div>
           </div>
 
-          <!-- Extended layers + core -->
           <div
             class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 items-center"
           >
-            <!-- Left -->
             <div class="space-y-3">
               <div
                 id="RPL"
@@ -906,7 +893,6 @@
               </div>
             </div>
 
-            <!-- Core -->
             <div
               id="EngineCore"
               class="engine-core p-4 rounded-full text-center flex flex-col justify-center items-center"
@@ -919,7 +905,6 @@
               </p>
             </div>
 
-            <!-- Right -->
             <div class="space-y-3">
               <div
                 id="ARL"
@@ -951,10 +936,9 @@
         </div>
       </section>
 
-      <!-- VIEW 4: SCM / ACTUATION LOG (v3.1) -->
+      <!-- VIEW 4: SCM -->
       <section id="view-scm" data-view class="hidden">
         <div class="flex flex-col lg:flex-row gap-6">
-          <!-- Left: Actuation Log -->
           <div class="w-full lg:w-1/3 max-w-xl lg:max-w-none">
             <div class="card p-5 rounded-xl mb-4 sticky top-0">
               <header class="text-center mb-4">
@@ -994,7 +978,6 @@
               </h2>
 
               <div id="day-status" class="space-y-3 text-xs">
-                <!-- DAY 1 -->
                 <div
                   id="day-1-section"
                   class="p-3 border-l-4 border-yellow-500 bg-[#1f242c] rounded-lg"
@@ -1085,7 +1068,6 @@
             </div>
           </div>
 
-          <!-- Right: Conceptual Matrix -->
           <div class="w-full lg:w-2/3">
             <div class="card p-5 rounded-xl">
               <h2
@@ -1119,7 +1101,6 @@
               </div>
 
               <div id="concept-content" class="text-xs sm:text-sm">
-                <!-- Architecture -->
                 <div id="architecture" class="tab-content">
                   <h3
                     class="text-lg font-bold text-[#64ffda] mb-2"
@@ -1138,45 +1119,26 @@
                     <ul
                       class="list-disc list-inside text-gray-300 space-y-1 text-xs"
                     >
-                      <li>
-                        High-velocity pattern engine running at
-                        theoretical limits.
-                      </li>
-                      <li>
-                        Fuel: dopamine dysregulation
-                        (DRD4-7R–style profile).
-                      </li>
-                      <li>
-                        Output: singular structural maps (SCM, DIR
-                        law).
-                      </li>
+                      <li>High-velocity pattern engine.</li>
+                      <li>Fuel: dopamine dysregulation.</li>
+                      <li>Output: singular structural maps.</li>
                     </ul>
                   </div>
 
                   <div class="concept-block">
                     <h4 class="text-white font-semibold text-sm mb-1">
-                      Actuator (Palms / Counting)
+                      Actuator
                     </h4>
                     <ul
                       class="list-disc list-inside text-gray-300 space-y-1 text-xs"
                     >
-                      <li>
-                        Converts cognitive energy into rhythm / sensory
-                        compliance.
-                      </li>
-                      <li>
-                        Failure mode: sinking / rumination, seeking
-                        extreme input to reset.
-                      </li>
-                      <li>
-                        Mandate: execute Financial Actuation (MFC) to
-                        prove system’s value.
-                      </li>
+                      <li>Converts cognition into rhythm / sensory loops.</li>
+                      <li>Failure mode: sinking / rumination.</li>
+                      <li>Mandate: execute Financial Actuation (MFC).</li>
                     </ul>
                   </div>
                 </div>
 
-                <!-- DIR Law -->
                 <div id="dir_law" class="tab-content hidden">
                   <h3
                     class="text-lg font-bold text-[#64ffda] mb-2"
@@ -1187,32 +1149,8 @@
                     Governs prioritization of Set A (deep structural)
                     vs Set B (relational chaos).
                   </p>
-
-                  <div class="concept-block">
-                    <h4 class="text-white font-semibold text-sm mb-1">
-                      Axiom 1: Velocity Dependence
-                    </h4>
-                    <p class="text-gray-300 text-xs">
-                      Value(I) ∝ 1 / Vₚ. Structural work likes
-                      slow-processing; reactive chaos demands hyper-
-                      speed. The kernel prefers the former.
-                    </p>
-                  </div>
-
-                  <div class="concept-block">
-                    <h4 class="text-white font-semibold text-sm mb-1">
-                      Axiom 2: Sovereign Index 𝕊
-                    </h4>
-                    <p class="text-gray-300 text-xs">
-                      Any action that sends energy into Set B without
-                      immediate proof (cash, coherence) is a structural
-                      loss. Over time, 𝕊 is maximized when the deep
-                      work keeps winning.
-                    </p>
-                  </div>
                 </div>
 
-                <!-- IT+ theory -->
                 <div id="it_plus" class="tab-content hidden">
                   <h3
                     class="text-lg font-bold text-[#64ffda] mb-2"
@@ -1220,101 +1158,20 @@
                     IT⁺: Information-as-Trauma Theory
                   </h3>
                   <p class="text-gray-500 text-xs mb-3">
-                    Collapse as necessary ignition event for the
-                    high-G system.
+                    Collapse as ignition event for the high-G system.
                   </p>
-
-                  <div class="concept-block">
-                    <h4 class="text-white font-semibold text-sm mb-1">
-                      Activation Law
-                    </h4>
-                    <p class="text-gray-300 text-xs">
-                      Trauma T → Systemic Replacement Protocol (SRP) →
-                      Actuation. Low-intensity signals never trigger
-                      full reclamation; your nervous system demanded a
-                      hard reboot.
-                    </p>
-                  </div>
-
-                  <div class="concept-block">
-                    <h4 class="text-white font-semibold text-sm mb-1">
-                      Structural Veto
-                    </h4>
-                    <p class="text-gray-300 text-xs">
-                      The Veto is the Actuator refusing Set B
-                      processing at all — pooling energy into Set A so
-                      the proof happens fast enough to flip the
-                      narrative.
-                    </p>
-                  </div>
                 </div>
 
-                <!-- Genetic stack -->
                 <div id="genetics" class="tab-content hidden">
                   <h3
                     class="text-lg font-bold text-[#64ffda] mb-2"
                   >
-                    Four-Pillar Genetic Stack (Symbolic / Heuristic)
+                    Four-Pillar Genetic Stack (Symbolic)
                   </h3>
                   <p class="text-gray-500 text-xs mb-3">
-                    A metaphorical synthesis of traits: resilience,
-                    pattern hunger, rhythm, and elasticity.
+                    Metaphorical synthesis of traits: resilience,
+                    pattern hunger, rhythm, elasticity.
                   </p>
-
-                  <div class="flex flex-wrap gap-3 text-xs">
-                    <div
-                      class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded"
-                    >
-                      <h4
-                        class="text-[0.9rem] font-semibold text-yellow-400"
-                      >
-                        Pillar 1: High-G Engine
-                      </h4>
-                      <p class="text-gray-300 text-[0.7rem]">
-                        Dopamine resilience &amp; hunger for novelty;
-                        keeps the pattern engine from burning out.
-                      </p>
-                    </div>
-                    <div
-                      class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded"
-                    >
-                      <h4
-                        class="text-[0.9rem] font-semibold text-yellow-400"
-                      >
-                        Pillar 2: Structural Blur
-                      </h4>
-                      <p class="text-gray-300 text-[0.7rem]">
-                        Ambiguous hormonal / identity load, forcing
-                        over-compensation and deep self-modeling.
-                      </p>
-                    </div>
-                    <div
-                      class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded"
-                    >
-                      <h4
-                        class="text-[0.9rem] font-semibold text-yellow-400"
-                      >
-                        Pillar 3: Pattern &amp; Rhythm Actuator
-                      </h4>
-                      <p class="text-gray-300 text-[0.7rem]">
-                        Counting, posturing, stimming as a physical
-                        buffer that lets the Processor keep running.
-                      </p>
-                    </div>
-                    <div
-                      class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded"
-                    >
-                      <h4
-                        class="text-[0.9rem] font-semibold text-yellow-400"
-                      >
-                        Pillar 4: Flexible Chassis
-                      </h4>
-                      <p class="text-gray-300 text-[0.7rem]">
-                        Hypermobility / elastic stress absorption —
-                        body as shock mount for psychic G-forces.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1322,70 +1179,43 @@
         </div>
       </section>
 
-      <!-- VIEW 5: CHAT / φ-FIELD CONSOLE -->
+      <!-- VIEW 5: CHAT / PHYLLO CONSOLE -->
       <section id="view-chat" data-view class="hidden">
-        <div class="max-w-4xl mx-auto p-2 sm:p-4 md:p-6 space-y-4">
-          <div class="card p-5 rounded-xl">
-            <h2 class="text-xl sm:text-2xl font-bold mb-2">
-              Chat / φ-Field Integration Shell
-            </h2>
-            <p class="text-xs sm:text-sm text-gray-300 mb-2">
-              The φ-Field console below is your main chat UI. It talks to
-              your backend at <span class="font-mono">/chat</span> by default.
-              The MetaEngine event spine sits underneath, auto-tagging and
-              time-stamping everything — including filed items from the folder
-              icons.
-            </p>
+        <canvas id="bg" aria-hidden="true"></canvas>
+
+        <div class="top-bar">
+          <button id="file-btn" class="file-btn" title="Drop a message here to file it">📁</button>
+          <button id="files-btn" class="file-btn" title="Open filed items">🗄️</button>
+        </div>
+
+        <div class="pane">
+          <div class="chatbox">
+            <div id="stream" class="stream" aria-live="polite"></div>
           </div>
+        </div>
 
-          <div class="card p-0 rounded-xl overflow-hidden">
-            <!-- φ-Field Console Root -->
-            <div id="phi-console-root">
-              <canvas id="phi-bg" aria-hidden="true"></canvas>
+        <div class="controls">
+          <form id="form" class="inputbar" autocomplete="off">
+            <input id="input" type="text" placeholder="Tag, you're IT"/>
+            <button class="btn" id="send" type="submit">Send</button>
+          </form>
+        </div>
 
-              <div class="top-bar">
-                <button id="file-btn" class="file-btn" title="Drop a message here to file it">📁</button>
-                <button id="files-btn" class="file-btn" title="Open filed items">🗄️</button>
-              </div>
-
-              <div class="pane">
-                <div class="chatbox">
-                  <div id="stream" class="stream" aria-live="polite"></div>
-                </div>
-              </div>
-
-              <div class="controls">
-                <form id="form" class="inputbar" autocomplete="off">
-                  <input id="input" type="text" placeholder="Tag, you're IT"/>
-                  <button class="btn" id="send" type="submit">Send</button>
-                </form>
-              </div>
-
-              <div id="files-modal" class="modal" aria-hidden="true">
-                <div class="modal-content" role="dialog" aria-modal="true" aria-label="Filed items">
-                  <div class="modal-header">
-                    <div class="title">Filed Items (<span id="file-count">0</span>)</div>
-                    <button id="modal-close-btn" class="modal-close-btn" aria-label="Close">×</button>
-                  </div>
-                  <div id="modal-list" class="modal-list"></div>
-                </div>
-              </div>
+        <div id="files-modal" class="modal" aria-hidden="true">
+          <div class="modal-content" role="dialog" aria-modal="true" aria-label="Filed items">
+            <div class="modal-header">
+              <div class="title">Filed Items (<span id="file-count">0</span>)</div>
+              <button id="modal-close-btn" class="modal-close-btn" aria-label="Close">×</button>
             </div>
+            <div id="modal-list" class="modal-list"></div>
           </div>
-
-          <p class="text-[0.7rem] text-slate-400 text-center">
-            Backend note: wire your server-side /chat route to Groq (or any model).
-            The front-end memory (MetaEngine) keeps a full, tagged event log you
-            can also stream to the backend when you want long-range continuity.
-          </p>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- META KERNEL SCRIPT: VIEW ROUTER + MODEL ADAPTER -->
+  <!-- META KERNEL / VIEWS -->
   <script>
-    // ------- VIEW ROUTER -------
     (function initViewRouter() {
       const buttons = Array.from(
         document.querySelectorAll(".meta-nav-button")
@@ -1411,29 +1241,13 @@
           }
         });
 
-        window.MetaKernel.activeView = targetId;
+        MetaKernel.activeView = targetId;
 
         if (statusLine) {
           statusLine.textContent =
             "Active view: " +
             targetId.replace("view-", "").toUpperCase() +
             " · Kernel synced.";
-        }
-
-        // When switching to chat view, let the φ-field canvas refit
-        if (targetId === "view-chat" && window.PHYLLO && typeof window.PHYLLO.fit === "function") {
-          window.PHYLLO.fit();
-        }
-
-        // Log view change to MetaEngine if available
-        if (window.MetaEngine && typeof window.MetaEngine.logEvent === "function") {
-          window.MetaEngine.logEvent({
-            actor: "engine",
-            kind: "view_change",
-            module: "meta_nav",
-            kernel: "i99t",
-            payload: { viewId: targetId }
-          });
         }
       }
 
@@ -1445,110 +1259,9 @@
         });
       });
 
-      // Initial view
       setActiveView("view-momentit");
     })();
 
-    // ------- HRAS DEFINITION PANEL -------
-    (function initHRASDefinitions() {
-      const DEFINITIONS = {
-        RCE: {
-          title: "Residual Content Engine (RCE)",
-          content:
-            "Builds topical authority and long-form assets that feed every other layer. Main metric: Lead Capture Rate (LCR)."
-        },
-        FIS: {
-          title: "Federated Insight Stream (FIS)",
-          content:
-            "Merges external APIs & data into proprietary, high-leverage insights. Main metric: User Engagement Rate (UER)."
-        },
-        PLF: {
-          title: "Perpetual Lead Funnel (PLF)",
-          content:
-            "Qualifies, profiles, and runs hyper-personalized outreach. Main metric: Revenue Per Outreach (RPO)."
-        },
-        DualInformationLaw: {
-          title: "Dual Information Law of Variable Relativity",
-          content:
-            "Controller that scores tasks by (Value - Cost) and reassigns tokens to whatever is most profitable in the manifold of learning."
-        },
-        ManifoldOfLearning: {
-          title: "Manifold of Learning",
-          content:
-            "The abstract state space HRAS explores. Dimensions: attention, signal, risk, and conversion. The kernel is always seeking a steeper slope."
-        },
-        Axioms: {
-          title: "Core Axioms",
-          content:
-            "Information precedes capital; residual structure outlives effort; anything that can be templatized can be residualized."
-        },
-        ITPlus: {
-          title: "IT+ (Information Theory Plus)",
-          content:
-            "Treats information as re-usable, recombinable matter. Once generated, it can be shaped into infinite outputs at near-zero marginal cost."
-        },
-        RPL: {
-          title: "Reputation & Proof Layer (RPL)",
-          content:
-            "Monitors wins and synthesizes social proof, injecting it into PLF and RCE for compounding trust."
-        },
-        UIL: {
-          title: "User Insight Layer (UIL)",
-          content:
-            "Low-friction feedback capture (“helpful / confusing”). Feeds content style & focus adjustments."
-        },
-        EEL: {
-          title: "Experimentation & Evolution Layer (EEL)",
-          content:
-            "Micro A/B tests on copy & offers. Uses simple metrics to continuously converge on higher conversion baselines."
-        },
-        ARL: {
-          title: "Asset Recycling Layer (ARL)",
-          content:
-            "Turns every primary asset into derivative posts, emails, & hooks. One asset, many channels."
-        },
-        PML: {
-          title: "Partnership Mesh Layer (PML)",
-          content:
-            "Finds and profiles synergistic partners; drafts win-win outreach to borrow their audience."
-        },
-        PLL: {
-          title: "Product Ladder Layer (PLL)",
-          content:
-            "Defines and enforces Bronze → Silver → Gold tiers, using scarcity & value stacking to justify price jumps."
-        },
-        EngineCore: {
-          title: "LLM / API ENGINE",
-          content:
-            "All heavy lifting goes here: content generation, classification, extraction. This is where Groq will live."
-        }
-      };
-
-      const panelTitle = document.getElementById("panel-title");
-      const panelContent = document.getElementById("panel-content");
-      if (!panelTitle || !panelContent) return;
-
-      const clickable = Array.from(
-        document.querySelectorAll(
-          "#view-hras .system-module, #view-hras .axiom-pill-chip, #EngineCore"
-        )
-      );
-
-      clickable.forEach((el) => {
-        el.addEventListener("click", () => {
-          const id = el.id;
-          const def = DEFINITIONS[id];
-          clickable.forEach((c) => c.classList.remove("active-module"));
-          el.classList.add("active-module");
-          if (def) {
-            panelTitle.textContent = def.title;
-            panelContent.textContent = def.content;
-          }
-        });
-      });
-    })();
-
-    // ------- SCM TAB SWITCHING -------
     (function initSCMTabs() {
       const tabs = Array.from(
         document.querySelectorAll("#view-scm .nav-tab")
@@ -1580,7 +1293,104 @@
       setTab("architecture");
     })();
 
-    // ------- META KERNEL OBJECT -------
+    (function initHRASDefinitions() {
+      const DEFINITIONS = {
+        RCE: {
+          title: "Residual Content Engine (RCE)",
+          content:
+            "Builds topical authority and long-form assets that feed every other layer."
+        },
+        FIS: {
+          title: "Federated Insight Stream (FIS)",
+          content:
+            "Merges external APIs & data into proprietary, high-leverage insights."
+        },
+        PLF: {
+          title: "Perpetual Lead Funnel (PLF)",
+          content:
+            "Qualifies, profiles, and runs hyper-personalized outreach."
+        },
+        DualInformationLaw: {
+          title: "Dual Information Law of Variable Relativity",
+          content:
+            "Scores tasks by (Value - Cost) and reassigns tokens accordingly."
+        },
+        ManifoldOfLearning: {
+          title: "Manifold of Learning",
+          content:
+            "The abstract state space HRAS explores: attention, signal, risk, conversion."
+        },
+        Axioms: {
+          title: "Core Axioms",
+          content:
+            "Information precedes capital; residual structure outlives effort."
+        },
+        ITPlus: {
+          title: "IT+ (Information Theory Plus)",
+          content:
+            "Treats information as re-usable, recombinable matter."
+        },
+        RPL: {
+          title: "Reputation & Proof Layer (RPL)",
+          content:
+            "Monitors wins and synthesizes social proof."
+        },
+        UIL: {
+          title: "User Insight Layer (UIL)",
+          content:
+            "Captures low-friction feedback to tune style and focus."
+        },
+        EEL: {
+          title: "Experimentation Layer (EEL)",
+          content:
+            "Runs micro tests on copy & offers to converge on higher conversion."
+        },
+        ARL: {
+          title: "Asset Recycling Layer (ARL)",
+          content:
+            "Turns primary assets into derivative posts, emails, and hooks."
+        },
+        PML: {
+          title: "Partnership Mesh Layer (PML)",
+          content:
+            "Profiles and engages synergistic partners."
+        },
+        PLL: {
+          title: "Product Ladder Layer (PLL)",
+          content:
+            "Defines Bronze → Silver → Gold tiers with value stacking."
+        },
+        EngineCore: {
+          title: "LLM / API ENGINE",
+          content:
+            "All heavy lifting goes here (Groq / Gemini / etc.)."
+        }
+      };
+
+      const panelTitle = document.getElementById("panel-title");
+      const panelContent = document.getElementById("panel-content");
+      if (!panelTitle || !panelContent) return;
+
+      const clickable = Array.from(
+        document.querySelectorAll(
+          "#view-hras .system-module, #view-hras .axiom-pill-chip, #EngineCore"
+        )
+      );
+
+      clickable.forEach((el) => {
+        el.addEventListener("click", () => {
+          const id = el.id;
+          const def = DEFINITIONS[id];
+          clickable.forEach((c) => c.classList.remove("active-module"));
+          el.classList.add("active-module");
+          if (def) {
+            panelTitle.textContent = def.title;
+            panelContent.textContent = def.content;
+          }
+        });
+      });
+    })();
+
     const MetaKernel = {
       version: "3.1",
       activeView: "view-momentit",
@@ -1589,10 +1399,6 @@
           ? crypto.randomUUID()
           : "anon-" + Date.now(),
 
-      /**
-       * Core call wrapper for your LLM backend.
-       * You plug Groq (or whatever) into the TODO block below.
-       */
       async callModel(payload) {
         const body = {
           messages: [payload],
@@ -1603,29 +1409,10 @@
           }
         };
 
-        // TODO: Plug your Groq endpoint & API key here.
-        // Example shape (you will replace URL + headers with Groq specifics):
-        //
-        // return fetch("https://api.groq.com/openai/v1/chat/completions", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": "Bearer YOUR_GROQ_API_KEY"
-        //   },
-        //   body: JSON.stringify({
-        //     model: "groq/mixtral-or-whatever",
-        //     messages: [
-        //       { role: "system", content: "You are the i99t meta engine..." },
-        //       body.messages[0]
-        //     ]
-        //   })
-        // }).then(res => res.json());
-
         console.warn(
           "[MetaKernel] callModel invoked with payload but no Groq backend wired.",
           body
         );
-        // Dummy echo for now so your UI has something to work with.
         return Promise.resolve({
           role: "assistant",
           content:
@@ -1636,24 +1423,10 @@
       }
     };
 
-    // expose globally
     window.MetaKernel = MetaKernel;
 
-    // ------- ATTACH POINTS FOR EXISTING MODULE SCRIPTS -------
-    function attachMomentITScripts() {
-      // This is where you can paste the original MomentIT
-      // Firebase / Firestore / T-suite JS you already have.
-      //
-      // In that code, just make sure:
-      // - You target #momentit-app instead of #app if it was hardcoded.
-      // - You keep IDs like ping-banner, acknowledge-btn, event-log, etc.
-    }
-
-    function attachActuationLogScripts() {
-      // Same idea: paste your full MFC / Actuation Log countdown
-      // script here, wired to #countdown, #lock-time, #day-status,
-      // and #log-area.
-    }
+    function attachMomentITScripts() {}
+    function attachActuationLogScripts() {}
 
     document.addEventListener("DOMContentLoaded", () => {
       attachMomentITScripts();
@@ -1661,480 +1434,315 @@
     });
   </script>
 
-  <!-- METAENGINE: EVENT SPINE / MEMORY -->
+  <!-- PHYLLO BG + CHAT + FILING -->
   <script>
-    (function () {
-      const STORAGE_KEY_EVENTS = "itplus_meta_events_v1";
+  (()=>{
+    const T=Math.PI*2,
+          c=document.getElementById('bg'),
+          x=c.getContext('2d');
+    let W=0,H=0,D=1,t=0,run=1;
+    const s={CS:.987,TSI:.10,novelty:.20,presence:.82};
 
-      function uuid() {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
-          const r = Math.random() * 16 | 0;
-          const v = c === "x" ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-      }
+    function fit(){
+      if(!c)return;
+      D=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+      W=innerWidth;
+      H=innerHeight;
+      c.width=Math.round(W*D);
+      c.height=Math.round(H*D);
+      c.style.width=W+'px';
+      c.style.height=H+'px';
+      x.setTransform(D,0,0,D,0,0);
+    }
+    window.addEventListener('resize',fit,{passive:true});
+    fit();
 
-      function nowMs() {
-        return Date.now();
-      }
-
-      function dayBucket(ts) {
-        const d = new Date(ts);
-        const y = d.getFullYear();
-        const m = (d.getMonth() + 1).toString().padStart(2, "0");
-        const day = d.getDate().toString().padStart(2, "0");
-        return y + "-" + m + "-" + day;
-      }
-
-      function copy(obj) {
-        return obj == null ? obj : JSON.parse(JSON.stringify(obj));
-      }
-
-      function extractHashTags(text) {
-        if (!text || typeof text !== "string") return [];
-        const matches = text.match(/#([a-zA-Z0-9_\-]+)/g) || [];
-        return matches.map(tag => tag.slice(1).toLowerCase());
-      }
-
-      const MetaEngine = {
-        state: {
-          events: [],
-          currentThreadId: "thread:default",
-          currentGoalId: null
-        },
-
-        loadEvents() {
-          try {
-            const raw = localStorage.getItem(STORAGE_KEY_EVENTS);
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              this.state.events = parsed;
-            }
-          } catch (e) {
-            console.warn("[MetaEngine] Event load error:", e);
-          }
-        },
-
-        saveEvents() {
-          try {
-            localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(this.state.events));
-          } catch (e) {
-            console.warn("[MetaEngine] Event save error:", e);
-          }
-        },
-
-        clearEvents() {
-          this.state.events = [];
-          try { localStorage.removeItem(STORAGE_KEY_EVENTS); } catch (e) {}
-          console.info("[MetaEngine] All events cleared.");
-        },
-
-        setContext(ctx) {
-          if (!ctx) return;
-          if (ctx.threadId) this.state.currentThreadId = ctx.threadId;
-          if (ctx.goalId) this.state.currentGoalId = ctx.goalId;
-        },
-
-        logEvent(raw) {
-          const ts = nowMs();
-          const day = dayBucket(ts);
-          const id = raw.id || uuid();
-          const actor = raw.actor || "engine";
-          const kind = raw.kind || "message";
-          const threadId = raw.thread_id || this.state.currentThreadId || "thread:default";
-          const goalId = raw.goal_id || this.state.currentGoalId || null;
-
-          const payload = raw.payload || {};
-          const text = raw.text || payload.text || "";
-          const explicitTags = (raw.tags || []).concat(extractHashTags(text));
-
-          const structuralTags = [];
-          structuralTags.push("session:" + day);
-          if (raw.module) structuralTags.push("module:" + raw.module);
-          if (raw.kernel) structuralTags.push("kernel:" + raw.kernel);
-          if (goalId) structuralTags.push("goal:" + goalId);
-          structuralTags.push("thread:" + threadId);
-          structuralTags.push("kind:" + kind);
-
-          const tags = Array.from(new Set(
-            explicitTags.map(t => t.toLowerCase()).concat(structuralTags)
-          ));
-
-          const event = {
-            id,
-            ts,
-            actor,
-            kind,
-            thread_id: threadId,
-            goal_id: goalId,
-            parent_id: raw.parent_id || null,
-            tags,
-            payload
+    const C=(v,a,b)=>Math.max(a,Math.min(b,v)),
+          L=(a,b,u)=>a+(b-a)*u,
+          E=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,
+          GA=CS=>{
+            const g=Math.PI*(3-Math.sqrt(5)),d=(1-CS)*.02;
+            return g*(1+d*Math.sin(t*.25));
+          },
+          R=(seed=1234567)=>{
+            let s=seed>>>0;
+            return()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
           };
 
-          this.state.events.push(event);
-          this.saveEvents();
+    function draw(){
+      if(!c)return;
+      const g=x.createLinearGradient(0,0,0,H);
+      g.addColorStop(0,'#05080d');
+      g.addColorStop(1,'#0a0f16');
+      x.fillStyle=g;
+      x.fillRect(0,0,W,H);
 
-          return event;
-        },
+      const cx=W*.5,cy=H*.52,maxR=Math.min(W,H)*.49,
+            CS=C(s.CS,.7,1),TSI=C(s.TSI,0,1),
+            nv=C(s.novelty,0,1),pr=C(s.presence,0,1);
 
-        queryEvents(filter) {
-          const events = this.state.events || [];
-          if (!filter) return copy(events);
+      const N=Math.floor(L(600,3200,E(pr))),
+            ang=GA(CS),base=L(2.2,6,CS),jit=L(0,1,TSI),
+            spin=nv*.8,breath=1+.045*Math.sin(t*.5),
+            rand=R(123456789^(N<<1));
 
-          return events.filter(ev => {
-            if (filter.threadId && ev.thread_id !== filter.threadId) return false;
-            if (filter.goalId && ev.goal_id !== filter.goalId) return false;
-            if (filter.tag) {
-              if (!ev.tags || !ev.tags.includes(filter.tag)) return false;
-            }
-            if (filter.kind && ev.kind !== filter.kind) return false;
-            return true;
-          }).map(copy);
-        }
-      };
+      x.save();
+      x.translate(cx,cy);
 
-      MetaEngine.loadEvents();
-      window.MetaEngine = MetaEngine;
-    })();
-  </script>
+      for(let i=0;i<N;i++){
+        const a=i*ang+t*spin,r=Math.sqrt(i)*base*breath;
+        let px=Math.cos(a)*r,py=Math.sin(a)*r;
 
-  <!-- φ-FIELD PHYLLO BACKGROUND + CHAT USING METAENGINE MEMORY -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      /* φ–FIELD BG (Phyllo swirl scoped to phi-console-root) */
-      (()=>{
-        const T=Math.PI*2,
-              canvas=document.getElementById('phi-bg'),
-              root=document.getElementById('phi-console-root');
-        if(!canvas || !root) return;
-        const x=canvas.getContext('2d');
-        let W=0,H=0,D=1,t=0,run=1;
-        const s={CS:.987,TSI:.10,novelty:.20,presence:.82};
+        px+=(rand()-.5)*jit*(.6+.6*Math.sin(i*.017+t*.3));
+        py+=(rand()-.5)*jit*(.6+.6*Math.cos(i*.013-t*.25));
 
-        function fit(){
-          const rect=root.getBoundingClientRect();
-          W = rect.width || root.offsetWidth || 600;
-          H = rect.height || root.offsetHeight || 420;
-          D=Math.max(1,Math.min(2,window.devicePixelRatio||1));
-          canvas.width=Math.round(W*D);
-          canvas.height=Math.round(H*D);
-          canvas.style.width=W+'px';
-          canvas.style.height=H+'px';
-          x.setTransform(D,0,0,D,0,0);
-        }
-        addEventListener('resize',fit,{passive:!0});
-        fit();
+        const scale=maxR/(Math.sqrt(N)*5.8),
+              x0=px*scale,y0=py*scale,
+              sz=L(1.2,2.8,CS)*(1-.5*TSI),
+              p=i/N,
+              h=(210+90*p+120*nv+26*Math.sin(t*.28))%360,
+              sa=Math.round(L(42,68,CS)),
+              lu=Math.round(L(34,62,1-TSI));
 
-        const C=(v,a,b)=>Math.max(a,Math.min(b,v)),
-              L=(a,b,u)=>a+(b-a)*u,
-              E=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,
-              GA=CS=>{
-                const g=Math.PI*(3-Math.sqrt(5)),d=(1-CS)*.02;
-                return g*(1+d*Math.sin(t*.25));
-              },
-              R=(seed=1234567)=>{
-                let s=seed>>>0;
-                return()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
-              };
-
-        function draw(){
-          const g=x.createLinearGradient(0,0,0,H);
-          g.addColorStop(0,'#05080d');
-          g.addColorStop(1,'#0a0f16');
-          x.fillStyle=g;
-          x.fillRect(0,0,W,H);
-
-          const cx=W*.5,cy=H*.52,maxR=Math.min(W,H)*.49,
-                CS=C(s.CS,.7,1),TSI=C(s.TSI,0,1),
-                nv=C(s.novelty,0,1),pr=C(s.presence,0,1);
-
-          const N=Math.floor(L(600,3200,E(pr))),
-                ang=GA(CS),base=L(2.2,6,CS),jit=L(0,1,TSI),
-                spin=nv*.8,breath=1+.045*Math.sin(t*.5),
-                rand=R(123456789^(N<<1));
-
-          x.save();
-          x.translate(cx,cy);
-
-          for(let i=0;i<N;i++){
-            const a=i*ang+t*spin,r=Math.sqrt(i)*base*breath;
-            let px=Math.cos(a)*r,py=Math.sin(a)*r;
-
-            px+=(rand()-.5)*jit*(.6+.6*Math.sin(i*.017+t*.3));
-            py+=(rand()-.5)*jit*(.6+.6*Math.cos(i*.013-t*.25));
-
-            const scale=maxR/(Math.sqrt(N)*5.8),
-                  x0=px*scale,y0=py*scale,
-                  sz=L(1.2,2.8,CS)*(1-.5*TSI),
-                  p=i/N,
-                  h=(210+90*p+120*nv+26*Math.sin(t*.28))%360,
-                  sa=Math.round(L(42,68,CS)),
-                  lu=Math.round(L(34,62,1-TSI));
-
-            x.fillStyle=`hsl(${h} ${sa}% ${lu}%)`;
-            x.beginPath();
-            x.arc(x0,y0,sz,0,T);
-            x.fill();
-          }
-
-          x.restore();
-        }
-
-        let last=performance.now();
-        function loop(now){
-          const dt=(now-last)/1e3;last=now;
-          if(run)t+=dt;
-          draw();
-          requestAnimationFrame(loop);
-        }
-        requestAnimationFrame(loop);
-
-        window.PHYLLO={
-          update(m={}){
-            if('CS'in m)s.CS=m.CS;
-            if('TSI'in m)s.TSI=m.TSI;
-            if('novelty'in m)s.novelty=m.novelty;
-            if('presence'in m)s.presence=m.presence;
-            if('running'in m)run=!!m.running;
-          },
-          fit
-        };
-      })();
-
-      /* Chat + Filing, wired into MetaEngine memory */
-      const $=id=>document.getElementById(id),
-            stream=$('stream'),
-            form=$('form'),
-            input=$('input'),
-            fileBtn=$('file-btn'),
-            filesBtn=$('files-btn'),
-            filesModal=$('files-modal'),
-            modalCloseBtn=$('modal-close-btn'),
-            modalList=$('modal-list'),
-            fileCount=$('file-count');
-
-      function linkify(s){
-        return (s||'')
-          .replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
-          .replace(/\bhttps?:\/\/[^\s)]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+        x.fillStyle=`hsl(${h} ${sa}% ${lu}%)`;
+        x.beginPath();
+        x.arc(x0,y0,sz,0,T);
+        x.fill();
       }
 
-      function addMsg(role,html){
-        const id=Date.now().toString(36)+Math.random().toString(36).slice(2,5),
-              row=document.createElement('div');
-        row.className='row '+(role==='user'?'user':'bot')+' emerge';
-        row.draggable=!0;
-        row.dataset.messageId=id;
+      x.restore();
+    }
 
-        const b=document.createElement('div');
-        b.className='bubble '+(role==='user'?'user':'bot');
-        b.innerHTML=linkify(html);
+    let last=performance.now();
+    function loop(now){
+      const dt=(now-last)/1e3;last=now;
+      if(run)t+=dt;
+      draw();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
 
-        const meta=document.createElement('div');
-        meta.className='meta';
-        meta.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-
-        row.appendChild(b);
-        row.appendChild(meta);
-        stream.appendChild(row);
-
-        setTimeout(()=>row.classList.add('active'),10);
-        row.addEventListener('dragstart',onDragStart);
-        stream.scrollTop=stream.scrollHeight;
-
-        // Log to MetaEngine
-        if (window.MetaEngine && typeof MetaEngine.logEvent === "function") {
-          MetaEngine.logEvent({
-            actor: role === 'user' ? 'user' : 'assistant',
-            kind: 'message',
-            module: 'phi_console',
-            kernel: 'i99t',
-            payload: {
-              text: html,
-              view: window.MetaKernel ? MetaKernel.activeView : null,
-              message_id: id
-            }
-          });
-        }
+    window.PHYLLO={
+      update(m={}){
+        if('CS'in m)s.CS=m.CS;
+        if('TSI'in m)s.TSI=m.TSI;
+        if('novelty'in m)s.novelty=m.novelty;
+        if('presence'in m)s.presence=m.presence;
+        if('running'in m)run=!!m.running;
       }
+    };
+  })();
 
-      function getFiledEvents(){
-        if (!window.MetaEngine || typeof MetaEngine.queryEvents !== "function") return [];
-        // "filed" tag is explicit; also structural tag "kind:file"
-        const events = MetaEngine.queryEvents({ tag: 'filed' });
-        // Sort newest first for display convenience
-        return events.sort((a,b)=>b.ts-a.ts);
-      }
+  const $=id=>document.getElementById(id),
+        stream=$('stream'),
+        form=$('form'),
+        input=$('input'),
+        fileBtn=$('file-btn'),
+        filesBtn=$('files-btn'),
+        filesModal=$('files-modal'),
+        modalCloseBtn=$('modal-close-btn'),
+        modalList=$('modal-list'),
+        fileCount=$('file-count');
 
-      function logFileEvent(text,id){
-        if (!window.MetaEngine || typeof MetaEngine.logEvent !== "function") return null;
-        return MetaEngine.logEvent({
-          actor: 'user',
-          kind: 'file',
-          module: 'phi_console',
-          kernel: 'i99t',
-          tags: ['filed'],
-          payload: {
-            text,
-            source_message_id: id
-          }
-        });
-      }
+  function linkify(s){
+    return (s||'')
+      .replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+      .replace(/\bhttps?:\/\/[^\s)]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+  }
 
-      function onDragStart(e){
-        const text=e.currentTarget.querySelector('.bubble').textContent;
-        e.dataTransfer.setData('text/plain',text);
-        e.dataTransfer.setData('message/id',e.currentTarget.dataset.messageId);
-        e.dataTransfer.effectAllowed='move';
-        fileBtn.style.color='var(--accent)';
-        fileBtn.style.transform='scale(1.2)';
-      }
+  function addMsg(role,html){
+    if(!stream)return;
+    const id=Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+          row=document.createElement('div');
+    row.className='row '+(role==='user'?'user':'bot')+' emerge';
+    row.draggable=true;
+    row.dataset.messageId=id;
 
-      fileBtn.addEventListener('dragover',e=>{
-        e.preventDefault();
-        e.dataTransfer.dropEffect='move';
-        fileBtn.style.opacity=.8;
+    const b=document.createElement('div');
+    b.className='bubble '+(role==='user'?'user':'bot');
+    b.innerHTML=linkify(html);
+
+    const meta=document.createElement('div');
+    meta.className='meta';
+    meta.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+
+    row.appendChild(b);
+    row.appendChild(meta);
+    stream.appendChild(row);
+
+    setTimeout(()=>row.classList.add('active'),10);
+    row.addEventListener('dragstart',onDragStart);
+    stream.scrollTop=stream.scrollHeight;
+  }
+
+  let filed=(()=>{
+    try{
+      const r=localStorage.getItem('itplus_files_v1');
+      return r?JSON.parse(r):[];
+    }catch(_){
+      return [];
+    }
+  })();
+
+  function saveFiled(){
+    localStorage.setItem('itplus_files_v1',JSON.stringify(filed));
+  }
+
+  function onDragStart(e){
+    const text=e.currentTarget.querySelector('.bubble').textContent;
+    e.dataTransfer.setData('text/plain',text);
+    e.dataTransfer.setData('message/id',e.currentTarget.dataset.messageId);
+    e.dataTransfer.effectAllowed='move';
+    if(fileBtn){
+      fileBtn.style.color='var(--accent-phi)';
+      fileBtn.style.transform='scale(1.2)';
+    }
+  }
+
+  if(fileBtn){
+    fileBtn.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      fileBtn.style.opacity=.8;
+    });
+
+    fileBtn.addEventListener('dragleave',()=>{
+      fileBtn.style.opacity=1;
+    });
+
+    fileBtn.addEventListener('drop',e=>{
+      e.preventDefault();
+      fileBtn.style.color='var(--ink)';
+      fileBtn.style.transform='scale(1)';
+      fileBtn.style.opacity=1;
+
+      const text=e.dataTransfer.getData('text/plain'),
+            id=e.dataTransfer.getData('message/id');
+
+      filed.push({
+        id,
+        text,
+        time:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
       });
+      saveFiled();
 
-      fileBtn.addEventListener('dragleave',()=>{
-        fileBtn.style.opacity=1;
-      });
-
-      fileBtn.addEventListener('drop',e=>{
-        e.preventDefault();
-        fileBtn.style.color='#d9e1ea';
-        fileBtn.style.transform='scale(1)';
-        fileBtn.style.opacity=1;
-
-        const text=e.dataTransfer.getData('text/plain'),
-              id=e.dataTransfer.getData('message/id');
-
-        logFileEvent(text,id);
-
-        addMsg(
-          'bot',
-          'Filing complete: message has been tagged and filed.\n'+
-          'A new MetaEngine event with tag "filed" was created for:\n'+
-          text.substring(0,60).trim()+'...'
-        );
-
-        const row=document.querySelector('[data-message-id="'+id+'"]');
-        if(row)row.remove();
-      });
-
-      addEventListener('dragend',()=>{
-        fileBtn.style.color='#d9e1ea';
-        fileBtn.style.transform='scale(1)';
-        fileBtn.style.opacity=1;
-      });
-
-      function openFiles(){
-        modalList.innerHTML='';
-        const filedEvents=getFiledEvents();
-        fileCount.textContent=filedEvents.length;
-
-        if(!filedEvents.length){
-          modalList.innerHTML=
-            '<div style="text-align:center;padding:20px;color:#9aa7b6;">'+
-            'No items filed yet. Drag a message onto the 📁 icon to start filing.'+
-            '</div>';
-        }else{
-          filedEvents.forEach(ev=>{
-            const d=document.createElement('div');
-            d.className='file-item';
-            const when = new Date(ev.ts).toLocaleString('en-US',{hour:'numeric',minute:'2-digit',month:'short',day:'numeric'});
-            const txt = (ev.payload && ev.payload.text) || '';
-            d.innerHTML=linkify(txt)+'<span class="file-item-time">'+when+'</span>';
-            modalList.appendChild(d);
-          });
-
-          addMsg('bot','Files opened: '+filedEvents.length+' filed item(s) in MetaEngine memory.\nThese are events tagged "filed".');
-        }
-
-        filesModal.classList.add('open');
-        filesModal.setAttribute('aria-hidden','false');
-      }
-
-      filesBtn.addEventListener('click',openFiles);
-
-      modalCloseBtn.addEventListener('click',()=>{
-        filesModal.classList.remove('open');
-        filesModal.setAttribute('aria-hidden','true');
-      });
-
-      filesModal.addEventListener('click',e=>{
-        if(e.target.id==='files-modal'){
-          filesModal.classList.remove('open');
-          filesModal.setAttribute('aria-hidden','true');
-        }
-      });
-
-      /* ========= LLM CHAT HANDLER (Groq-backed via /chat) ========= */
-
-      async function handleChatWithLLM(userText){
-        try{
-          const res=await fetch('/chat',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({message:userText})
-          });
-          const data=await res.json();
-          if(data && data.reply){
-            addMsg('bot',data.reply);
-          }else{
-            addMsg('bot',"No reply from backend /chat. Check your server or API wiring.");
-          }
-        }catch(e){
-          console.error('Chat backend error:', e);
-          addMsg('bot',"Error talking to model backend. Make sure /chat exists and your API key is set on the server.");
-        }
-      }
-
-      /* ========= Command + routing layer ========= */
-
-      function processInput(txt){
-        const t=txt.trim().toLowerCase();
-
-        // Help command
-        if(t==='help it'){
-          addMsg(
-            'bot',
-            "Help · φ-Field Console\n\n"+
-            "- Just type normally to chat with the model (via your /chat backend).\n"+
-            "- help it  — show this help.\n\n"+
-            "Filing:\n"+
-            "- Drag any message onto the 📁 icon to file it (stored in MetaEngine memory).\n"+
-            "- Click the cabinet icon (🗄️) to browse filed items."
-          );
-          return;
-        }
-
-        // Everything else goes to the model
-        handleChatWithLLM(txt);
-      }
-
-      /* Wire form submission to processInput */
-      form.addEventListener('submit',e=>{
-        e.preventDefault();
-        const txt=input.value.trim();
-        if(!txt)return;
-        addMsg('user',txt);
-        input.value='';
-        processInput(txt);
-      });
-
-      /* Initial bot line */
       addMsg(
         'bot',
-        "Welcome to the φ-Field console.\n\n"+
-        "- Type anything to chat with the model (wired to /chat).\n"+
-        "- Type \"help it\" for a quick guide.\n\n"+
-        "Drag any message onto the folder icon to file it; click the cabinet icon to browse.\n"+
-        "All of this is mirrored into MetaEngine events for continuity and tagging."
+        'Filing complete: message has been tagged and filed ('+filed.length+' total).\nA new file will be created with the entry:\n'+
+        text.substring(0,60).trim()+'...'
       );
+
+      const row=document.querySelector('[data-message-id="'+id+'"]');
+      if(row)row.remove();
     });
+  }
+
+  window.addEventListener('dragend',()=>{
+    if(fileBtn){
+      fileBtn.style.color='var(--ink)';
+      fileBtn.style.transform='scale(1)';
+      fileBtn.style.opacity=1;
+    }
+  });
+
+  function openFiles(){
+    if(!modalList||!fileCount||!filesModal)return;
+    modalList.innerHTML='';
+    fileCount.textContent=filed.length;
+
+    if(!filed.length){
+      modalList.innerHTML=
+        '<div style="text-align:center;padding:20px;color:#9aa7b6;">'+
+        'No items filed yet. Drag a message onto the 📁 icon to start filing.'+
+        '</div>';
+    }else{
+      filed.slice().reverse().forEach(it=>{
+        const d=document.createElement('div');
+        d.className='file-item';
+        d.innerHTML=linkify(it.text)+'<span class="file-item-time">'+it.time+'</span>';
+        modalList.appendChild(d);
+      });
+      addMsg('bot','Files opened: '+filed.length+' filed item(s) found.\nUse the close button or click outside to dismiss.');
+    }
+
+    filesModal.classList.add('open');
+    filesModal.setAttribute('aria-hidden','false');
+  }
+
+  if(filesBtn){
+    filesBtn.addEventListener('click',openFiles);
+  }
+
+  if(modalCloseBtn && filesModal){
+    modalCloseBtn.addEventListener('click',()=>{
+      filesModal.classList.remove('open');
+      filesModal.setAttribute('aria-hidden','true');
+    });
+
+    filesModal.addEventListener('click',e=>{
+      if(e.target.id==='files-modal'){
+        filesModal.classList.remove('open');
+        filesModal.setAttribute('aria-hidden','true');
+      }
+    });
+  }
+
+  async function handleChatWithLLM(userText){
+    try{
+      const res=await fetch('/chat',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:userText})
+      });
+      const data=await res.json();
+      if(data && data.reply){
+        addMsg('bot',data.reply);
+      }else{
+        addMsg('bot',"No reply from backend /chat. Check your server or API wiring.");
+      }
+    }catch(e){
+      console.error('Chat backend error:', e);
+      addMsg('bot',"Error talking to model backend. Make sure /chat exists and your API key is set on the server.");
+    }
+  }
+
+  function processInput(txt){
+    const t=txt.trim().toLowerCase();
+
+    if(t==='help it'){
+      addMsg(
+        'bot',
+        "Help · φ-Field Console\n\n"+
+        "- Type normally to chat with the model (via your /chat backend).\n"+
+        "- help it  — show this help.\n\n"+
+        "Filing:\n"+
+        "- Drag any message onto the 📁 icon to file it.\n"+
+        "- Click the cabinet icon (🗄️) to browse filed items."
+      );
+      return;
+    }
+
+    handleChatWithLLM(txt);
+  }
+
+  if(form && input){
+    form.addEventListener('submit',e=>{
+      e.preventDefault();
+      const txt=input.value.trim();
+      if(!txt)return;
+      addMsg('user',txt);
+      input.value='';
+      processInput(txt);
+    });
+
+    addMsg(
+      'bot',
+      "Welcome to the φ-Field console.\n\n"+
+      "- Type anything to chat with the model.\n"+
+      "- Type \"help it\" for a quick guide.\n\n"+
+      "Drag any message onto the folder icon to file it; click the cabinet icon to browse."
+    );
+  }
   </script>
 </body>
 </html>
