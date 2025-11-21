@@ -126,7 +126,7 @@ a{
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <div class="top-bar">
-  <button id="file-btn" class="file-btn" title="Drop a message here to file it">📁</button>
+  <button id="file-btn" class="file-btn" title="File messages">📁</button>
   <button id="files-btn" class="file-btn" title="Open filed items">🗄️</button>
 </div>
 
@@ -191,6 +191,7 @@ a{
     const g=x.createLinearGradient(0,0,0,H);
     g.addColorStop(0,'#05080d');
     g.addColorStop(1,'#0a0f16');
+    x.fillStyle=g;
     x.fillRect(0,0,W,H);
 
     const cx=W*.5,cy=H*.52,maxR=Math.min(W,H)*.49,
@@ -249,7 +250,7 @@ a{
   };
 })();
 
-/* Chat + Filing (UI only) */
+/* Chat + Filing (UI only; backend is /chat) */
 const $=id=>document.getElementById(id),
       stream=$('stream'),
       form=$('form'),
@@ -267,6 +268,22 @@ function linkify(s){
     .replace(/\bhttps?:\/\/[^\s)]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
 }
 
+let filed=(()=>{
+  try{
+    const r=localStorage.getItem('itplus_files_v1');
+    return r?JSON.parse(r):[];
+  }catch(_){
+    return [];
+  }
+})();
+
+let lastUserMsg=null;
+let lastBotMsg=null;
+
+function saveFiled(){
+  localStorage.setItem('itplus_files_v1',JSON.stringify(filed));
+}
+
 function addMsg(role,html){
   const id=Date.now().toString(36)+Math.random().toString(36).slice(2,5),
         row=document.createElement('div');
@@ -280,7 +297,8 @@ function addMsg(role,html){
 
   const meta=document.createElement('div');
   meta.className='meta';
-  meta.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const ts=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  meta.textContent=ts;
 
   row.appendChild(b);
   row.appendChild(meta);
@@ -289,19 +307,10 @@ function addMsg(role,html){
   setTimeout(()=>row.classList.add('active'),10);
   row.addEventListener('dragstart',onDragStart);
   stream.scrollTop=stream.scrollHeight;
-}
 
-let filed=(()=>{
-  try{
-    const r=localStorage.getItem('itplus_files_v1');
-    return r?JSON.parse(r):[];
-  }catch(_){
-    return [];
-  }
-})();
-
-function saveFiled(){
-  localStorage.setItem('itplus_files_v1',JSON.stringify(filed));
+  const record={id,text:typeof html==='string'?html:String(html||''),time:ts,role};
+  if(role==='user') lastUserMsg=record;
+  else lastBotMsg=record;
 }
 
 function onDragStart(e){
@@ -313,6 +322,32 @@ function onDragStart(e){
   fileBtn.style.transform='scale(1.2)';
 }
 
+/* ---- Filing helpers ---- */
+
+function fileRecord(rec,kind){
+  if(!rec){
+    addMsg('bot', kind==='bot'
+      ? "No model output to file yet."
+      : "No user message to file yet."
+    );
+    return;
+  }
+  filed.push({
+    id:rec.id,
+    text:rec.text,
+    time:rec.time || new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
+  });
+  saveFiled();
+  addMsg(
+    'bot',
+    (kind==='bot'
+      ? "Filed last model reply."
+      : "Filed your last message."
+    )+" Total files: "+filed.length+"."
+  );
+}
+
+/* Drag & drop filing on desktop */
 fileBtn.addEventListener('dragover',e=>{
   e.preventDefault();
   e.dataTransfer.dropEffect='move';
@@ -355,6 +390,30 @@ addEventListener('dragend',()=>{
   fileBtn.style.opacity=1;
 });
 
+/* Single-tap / double-tap behavior on 📁 */
+
+let lastTapTime=0;
+
+fileBtn.addEventListener('click',()=>{
+  const now=Date.now();
+  if(now-lastTapTime<350){
+    // double tap -> file last user message
+    lastTapTime=0;
+    fileRecord(lastUserMsg,'user');
+  }else{
+    lastTapTime=now;
+    setTimeout(()=>{
+      if(lastTapTime && Date.now()-lastTapTime>=340){
+        // single tap -> file last bot message
+        fileRecord(lastBotMsg,'bot');
+        lastTapTime=0;
+      }
+    },360);
+  }
+});
+
+/* Files modal */
+
 function openFiles(){
   modalList.innerHTML='';
   fileCount.textContent=filed.length;
@@ -362,7 +421,7 @@ function openFiles(){
   if(!filed.length){
     modalList.innerHTML=
       '<div style="text-align:center;padding:20px;color:#9aa7b6;">'+
-      'No items filed yet. Drag a message onto the 📁 icon to start filing.'+
+      'No items filed yet. Tap 📁 (single or double) or drag a message onto it to start filing.'+
       '</div>';
   }else{
     filed.slice().reverse().forEach(it=>{
@@ -371,7 +430,7 @@ function openFiles(){
       d.innerHTML=linkify(it.text)+'<span class="file-item-time">'+it.time+'</span>';
       modalList.appendChild(d);
     });
-    addMsg('bot','Files opened: '+filed.length+' filed item(s) found.\nUse the close button or click outside to dismiss.');
+    addMsg('bot','Files opened: '+filed.length+' filed item(s) found.\nUse the close button or tap outside to dismiss.');
   }
 
   filesModal.classList.add('open');
@@ -425,15 +484,19 @@ function processInput(txt){
       "- Type normally to chat with the model (wired to your /chat backend).\n"+
       "- help it  — show this help.\n\n"+
       "Filing:\n"+
-      "- Drag any message onto the 📁 icon to file it.\n"+
-      "- Click the cabinet icon (🗄️) to browse filed items."
+      "- Single tap 📁  — file the last model reply.\n"+
+      "- Double tap 📁  — file your last message.\n"+
+      "- Drag any bubble onto 📁 on desktop to file it.\n"+
+      "- Tap 🗄️ to browse filed items."
     );
     return;
   }
 
+  // Everything else goes to the model
   handleChatWithLLM(txt);
 }
 
+/* Wire form submission to processInput */
 form.addEventListener('submit',e=>{
   e.preventDefault();
   const txt=input.value.trim();
@@ -444,13 +507,19 @@ form.addEventListener('submit',e=>{
 });
 
 /* Initial bot line */
-(()=>addMsg(
-  'bot',
-  "Welcome to the φ-Field console.\n\n"+
-  "- Type anything to chat with the model.\n"+
-  "- Type \"help it\" for a quick guide.\n\n"+
-  "Drag any message onto the folder icon to file it; click the cabinet icon to browse."
-))();
+(()=>{
+  addMsg(
+    'bot',
+    "Welcome to the φ-Field console.\n\n"+
+    "- Type anything to chat with the model.\n"+
+    "- Type \"help it\" for a quick guide.\n\n"+
+    "Filing shortcuts:\n"+
+    "• Single tap 📁 → file last model reply.\n"+
+    "• Double tap 📁 → file your last message.\n"+
+    "• Tap 🗄️ to open the file cabinet.\n"+
+    "Drag-and-drop filing still works on desktop."
+  );
+})();
 </script>
 </body>
 </html>
