@@ -1,11 +1,3 @@
-Here’s a single merged HTML file:
-	•	i99t Meta Engine shell (MomentIT / HRAS / SCM / Chat views)
-	•	φ-Field console (phyllo UI) living inside the Chat view
-	•	MetaEngine event spine for RAM/bandwidth/memory
-	•	File icons now use MetaEngine memory (events tagged filed) instead of a separate local store.
-
-You can drop this into Replit as index.html and then wire /chat or Groq however you like.
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
