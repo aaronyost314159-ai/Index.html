@@ -144,3 +144,164 @@
 
   console.log("[i99t patches] Deep Mechanics patch rail attached.");
 })();
+// patches.js
+// UOF (Universal Ordering Field) + archive view patch for φ-Field console.
+
+(function(){
+  if (typeof window === 'undefined') return;
+
+  function ready(fn){
+    if (document.readyState === 'complete' || document.readyState === 'interactive'){
+      setTimeout(fn, 0);
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
+  ready(function(){
+
+    // --- 1) Patch fileText to attach a Universal Ordering Field (uof) ---
+
+    if (typeof fileText !== 'function') {
+      console.warn('[patches] fileText not found; UOF patch NOT applied.');
+    } else {
+      window.fileText = function(text, sourceRole, mode){
+        // Global monotonically increasing counter across all filed items.
+        let uofCounter = 0;
+        try {
+          const stored = localStorage.getItem('itplus_uof_counter_v1');
+          uofCounter = stored ? (parseInt(stored, 10) || 0) : 0;
+        } catch (e) {
+          uofCounter = 0;
+        }
+
+        uofCounter += 1;
+
+        try {
+          localStorage.setItem('itplus_uof_counter_v1', String(uofCounter));
+        } catch (e) {
+          // If localStorage fails, we still proceed; uof just won't persist perfectly.
+        }
+
+        const entry = {
+          id: Date.now().toString(36),
+          text,
+          role: sourceRole,
+          convoId: (typeof convoId !== 'undefined') ? convoId : null,
+          mode: mode || 'manual',
+          timestamp: new Date().toISOString(),
+          timeHuman: new Date().toLocaleString(),
+          uof: uofCounter,
+          tags: [
+            'auto:file',
+            'role:' + sourceRole,
+            'mode:' + (mode || 'manual')
+          ]
+        };
+
+        // Uses existing globals from index.html
+        filed.push(entry);
+        saveFiled();
+
+        addMsg(
+          'bot',
+          'Filing complete.\n\n' +
+          '- Role: ' + sourceRole + '\n' +
+          '- Mode: ' + (mode || 'manual') + '\n' +
+          '- UOF index: ' + uofCounter + '\n' +
+          '- Files in archive: ' + filed.length + '\n\n' +
+          text.substring(0, 80).trim() + (text.length > 80 ? '...' : '')
+        );
+      };
+    }
+
+    // --- 2) Patch the 🗄️ Files button to show UOF in the archive modal ---
+
+    const originalFilesBtn = document.getElementById('files-btn');
+    if (!originalFilesBtn) {
+      console.warn('[patches] files-btn not found; archive patch NOT applied.');
+      return;
+    }
+
+    // Clone button to strip the old click listener that used openFiles()
+    const patchedFilesBtn = originalFilesBtn.cloneNode(true);
+    originalFilesBtn.parentNode.replaceChild(patchedFilesBtn, originalFilesBtn);
+
+    patchedFilesBtn.addEventListener('click', function(){
+      const modal     = document.getElementById('files-modal');
+      const modalList = document.getElementById('modal-list');
+      const fileCount = document.getElementById('file-count');
+
+      if (!modal || !modalList || !fileCount) {
+        console.warn('[patches] Missing files modal elements; cannot render archive.');
+        return;
+      }
+
+      modalList.innerHTML = '';
+      fileCount.textContent = filed.length;
+
+      if (!filed.length) {
+        modalList.innerHTML =
+          '<div style="text-align:center;padding:20px;color:#9aa7b6;">' +
+          'No items filed yet. Drag a message onto the 📁 icon, or tap it to file recent messages.' +
+          '</div>';
+
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
+
+      // Sort by UOF if present, falling back to timestamp.
+      const sorted = filed.slice().sort((a, b) => {
+        const au = (typeof a.uof === 'number') ? a.uof : 0;
+        const bu = (typeof b.uof === 'number') ? b.uof : 0;
+
+        if (au && bu) return au - bu;
+        if (au && !bu) return -1;
+        if (!au && bu) return 1;
+
+        const at = a.timestamp || '';
+        const bt = b.timestamp || '';
+        if (at < bt) return -1;
+        if (at > bt) return 1;
+        return 0;
+      });
+
+      sorted.forEach(it => {
+        const d = document.createElement('div');
+        d.className = 'file-item';
+
+        const uofLabel = (typeof it.uof === 'number')
+          ? ('#' + it.uof + ' · ')
+          : '';
+
+        const timeLabel = it.timeHuman || it.time || it.timestamp || '';
+
+        d.innerHTML =
+          '<div style="font-size:11px;color:#9aa7b6;margin-bottom:4px;">' +
+            uofLabel + timeLabel +
+          '</div>' +
+          linkify(it.text) +
+          '<span class="file-item-tagline">' +
+            (it.convoId ? ('convo: ' + it.convoId + ' · ') : '') +
+            (it.role   ? ('role: '  + it.role   + ' · ') : '') +
+            (it.mode   ? ('mode: '  + it.mode)           : '') +
+          '</span>';
+
+        modalList.appendChild(d);
+      });
+
+      addMsg(
+        'bot',
+        'Files opened: ' + filed.length +
+        ' item(s) in archive. Ordered by Universal Ordering Field (UOF) where available.'
+      );
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    });
+
+    console.log('[patches] UOF + archive patches applied.');
+  });
+
+})();
