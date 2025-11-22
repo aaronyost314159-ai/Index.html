@@ -1020,7 +1020,7 @@
                       High-G v3.1 Neuro-Architecture Map
                     </h3>
                     <p class="text-gray-500 mb-3">
-                      AuDHD-ish / 2e pattern engine mapped onto Processor–Actuator split.
+                      High-velocity pattern engine mapped onto Processor–Actuator split.
                     </p>
 
                     <div class="concept-block">
@@ -1028,9 +1028,9 @@
                         Processor (Systems Thinker)
                       </h4>
                       <ul class="list-disc list-inside text-gray-300 space-y-1 text-xs">
-                        <li>High-velocity pattern engine running at theoretical limits.</li>
-                        <li>Fuel: dopamine dysregulation (DRD4-7R–style profile).</li>
-                        <li>Output: singular structural maps (SCM, DIR law).</li>
+                        <li>High-velocity pattern engine running near theoretical limits.</li>
+                        <li>Fuel: strong pattern-seeking drive and hunger for novelty.</li>
+                        <li>Output: singular structural maps (SCM, DIR law, protocols).</li>
                       </ul>
                     </div>
 
@@ -1039,8 +1039,8 @@
                         Actuator (Palms / Counting)
                       </h4>
                       <ul class="list-disc list-inside text-gray-300 space-y-1 text-xs">
-                        <li>Converts cognitive energy into rhythm / sensory compliance.</li>
-                        <li>Failure mode: sinking / rumination, seeking extreme input to reset.</li>
+                        <li>Converts cognitive energy into rhythm and concrete execution.</li>
+                        <li>Failure mode: overload / rumination when structure is missing.</li>
                         <li>Mandate: execute Financial Actuation (MFC) to prove system’s value.</li>
                       </ul>
                     </div>
@@ -1086,7 +1086,7 @@
                         Activation Law
                       </h4>
                       <p class="text-gray-300 text-xs">
-                        Trauma T → Systemic Replacement Protocol (SRP) → Actuation. Low-intensity signals never trigger full reclamation; your nervous system demanded a hard reboot.
+                        Trauma T → Systemic Replacement Protocol (SRP) → Actuation. Low-intensity signals never trigger full reclamation; the nervous system demands a hard reboot when the lattice is untenable.
                       </p>
                     </div>
 
@@ -1102,7 +1102,7 @@
 
                   <div id="genetics" class="tab-content hidden">
                     <h3 class="text-lg font-bold text-[#64ffda] mb-2">
-                      Four-Pillar Genetic Stack (Symbolic / Heuristic)
+                      Four-Pillar Structural Stack (Symbolic / Heuristic)
                     </h3>
                     <p class="text-gray-500 text-xs mb-3">
                       A metaphorical synthesis of traits: resilience, pattern hunger, rhythm, and elasticity.
@@ -1114,7 +1114,7 @@
                           Pillar 1: High-G Engine
                         </h4>
                         <p class="text-gray-300 text-[0.7rem]">
-                          Dopamine resilience &amp; hunger for novelty; keeps the pattern engine from burning out.
+                          Sustained pattern hunger and resilience under high cognitive load; keeps the system from burning out while it builds new structure.
                         </p>
                       </div>
                       <div class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded">
@@ -1122,7 +1122,7 @@
                           Pillar 2: Structural Blur
                         </h4>
                         <p class="text-gray-300 text-[0.7rem]">
-                          Ambiguous hormonal / identity load, forcing over-compensation and deep self-modeling.
+                          Life conditions that force deep self-modeling and structural introspection, pushing the kernel to map reality precisely instead of living on guesswork.
                         </p>
                       </div>
                       <div class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded">
@@ -1130,7 +1130,7 @@
                           Pillar 3: Pattern &amp; Rhythm Actuator
                         </h4>
                         <p class="text-gray-300 text-[0.7rem]">
-                          Counting, posturing, stimming as a physical buffer that lets the Processor keep running.
+                          Rhythm and embodied habits as a physical buffer that lets the Processor keep running while pressure is high.
                         </p>
                       </div>
                       <div class="w-full md:w-[48%] concept-block bg-[#1f242c] p-3 rounded">
@@ -1138,7 +1138,7 @@
                           Pillar 4: Flexible Chassis
                         </h4>
                         <p class="text-gray-300 text-[0.7rem]">
-                          Hypermobility / elastic stress absorption — body as shock mount for psychic G-forces.
+                          Capacity to absorb stress and change without losing core orientation — an architecture that bends instead of shattering.
                         </p>
                       </div>
                     </div>
@@ -1475,7 +1475,15 @@
   // Track in-memory message history
   const messageLog = [];
 
-  function addMsg(role, text){
+  const HISTORY_KEY = 'phi_field_history_v1';
+
+  function saveHistory(){
+    try{
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(messageLog));
+    }catch(_){}
+  }
+
+  function addMsg(role, text, fromHistory){
     const id  = Date.now().toString(36)+Math.random().toString(36).slice(2,5);
     const row = document.createElement('div');
     row.className = 'row ' + (role === 'user' ? 'user':'bot') + ' emerge';
@@ -1494,12 +1502,32 @@
     row.appendChild(meta);
     stream.appendChild(row);
 
-    messageLog.push({id, role, text});
+    const entry = {id, role, text};
+    messageLog.push(entry);
+    if(!fromHistory){
+      saveHistory();
+    }
 
     setTimeout(()=>row.classList.add('active'),10);
     row.addEventListener('dragstart', onDragStart);
     stream.scrollTop = stream.scrollHeight;
   }
+
+  function loadHistory(){
+    try{
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if(!raw) return;
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) return;
+      parsed.forEach(m=>{
+        if(!m || (m.role !== 'user' && m.role !== 'bot') || typeof m.text !== 'string') return;
+        addMsg(m.role, m.text, true);
+      });
+    }catch(_){}
+  }
+
+  // Load any prior conversation into the stream
+  loadHistory();
 
   // Load filed items from localStorage
   let filed = (()=> {
@@ -1712,8 +1740,9 @@
     processInput(txt);
   });
 
-  // Initial greeting
+  // Initial greeting (only if no history exists)
   (()=>{
+    if(messageLog.length) return;
     addMsg(
       'bot',
       "Welcome to the φ-Field console.\n\n" +
