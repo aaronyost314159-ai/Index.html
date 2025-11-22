@@ -32,6 +32,35 @@
     mode: "fast"      // fast | debug (conceptual for now)
   };
 
+  // Aaron IT+ · Augmentation Profile v1
+  // Non-diagnostic, non-IQ profile used only for engine tuning.
+  // Assumes a high-nonlinear, high-relational, high-meaning user by default.
+  window.AARON_IT_PROFILE = window.AARON_IT_PROFILE || {
+    version: "1.0.0",
+    style: "high_nonlinear_benchmark",
+    // Core dimensions (from the whitepaper)
+    dimensions: {
+      RA: "Relational Abstraction",
+      PN: "Pattern Navigation",
+      PM: "Perspective Mobility",
+      CD: "Creative Divergence",
+      MC: "Meaning Construction",
+      CP: "Coherence Preservation"
+    },
+    // Default tuning assumptions for this console
+    defaults: {
+      allowLayeredExplanations: true,   // simple -> structural -> how-to
+      tolerateJumps: true,              // user can move non-linearly without penalty
+      preferRelationalLinks: true,      // analogies, mappings, invariants
+      pinInvariantsByDefault: true,     // core truths / rules auto-treated as important
+      meaningFirstRouting: true         // prioritize moves that increase meaning/coherence
+    },
+    notes:
+      "Internal benchmark for non-linear intelligence. " +
+      "No scoring or diagnosis by default; this biases the engine " +
+      "toward high-bandwidth, high-relational behavior."
+  };
+
   function bot(text) {
     window.addMsg("bot", text);
   }
