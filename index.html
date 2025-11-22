@@ -114,7 +114,7 @@
     border:none;
     box-shadow:0 1px 0 rgba(0,0,0,.2);
     color:var(--ink);
-    white-space:pre-wrap; /* respect \n */
+    white-space:pre-wrap;
   }
 
   .bubble.user{
@@ -233,10 +233,151 @@
     .modal-content{width:100%;height:100%;border-radius:0}
   }
 
+  /* LEFT SIDEBAR (CONVERSATIONS / TAGS / TOOLS) ------------------- */
+
+  #sidebar-tab{
+    position:fixed;
+    top:50%;
+    left:0;
+    transform:translate(-50%,-50%);
+    z-index:4;
+    width:18px;
+    height:72px;
+    border-radius:0 10px 10px 0;
+    background:rgba(13,17,23,.9);
+    border:1px solid var(--line);
+    border-left:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    color:var(--muted);
+    cursor:pointer;
+  }
+
+  #sidebar{
+    position:fixed;
+    top:40px;
+    bottom:0;
+    left:-260px;
+    width:240px;
+    z-index:4;
+    background:rgba(10,14,20,.96);
+    border-right:1px solid var(--line);
+    box-shadow:4px 0 18px rgba(0,0,0,.6);
+    padding:10px 10px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    transition:left .22s ease-out;
+    font-size:12px;
+  }
+
+  #sidebar.open{left:0;}
+
+  .sidebar-section{margin-bottom:10px;}
+
+  .sidebar-section-title{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+
+  #sidebar-convos{
+    flex:1;
+    overflow:auto;
+  }
+
+  .convo-row{
+    padding:6px 7px;
+    border-radius:7px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    cursor:pointer;
+    transition:background .12s ease,color .12s ease;
+  }
+
+  .convo-row.active{
+    background:rgba(0,206,209,.16);
+    color:var(--ink);
+  }
+
+  .convo-row:hover{
+    background:rgba(148,163,184,.22);
+  }
+
+  .convo-title{
+    font-size:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .convo-meta{
+    font-size:10px;
+    color:var(--muted);
+  }
+
+  .sidebar-buttons{
+    display:flex;
+    gap:6px;
+    margin-bottom:6px;
+  }
+
+  .sidebar-btn{
+    flex:1;
+    padding:6px 8px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#0b1018;
+    color:var(--ink);
+    font-size:11px;
+    cursor:pointer;
+  }
+
+  .sidebar-input{
+    width:100%;
+    padding:6px 8px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#050910;
+    color:var(--ink);
+    font-size:11px;
+  }
+
+  .sidebar-tag-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+    max-height:80px;
+    overflow:auto;
+  }
+
+  .tag-pill{
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    font-size:10px;
+    color:var(--muted);
+    cursor:pointer;
+  }
+
+  .tag-pill:hover{
+    border-color:var(--accent);
+    color:var(--ink);
+  }
+
+  @media(max-width:720px){
+    #sidebar{width:210px;}
+  }
+
   /* I99T META ENGINE SHELL (hidden by default) --------------------- */
 
   #meta-shell-root{
-    display:none; /* keep console as the visible UI */
+    display:none;
     position:relative;
     z-index:5;
     min-height:100vh;
@@ -495,6 +636,31 @@
 <body>
   <!-- PHYLLO BACKGROUND + φ-FIELD CONSOLE ------------------------ -->
   <canvas id="bg" aria-hidden="true"></canvas>
+
+  <!-- Left pull-tab + sidebar -->
+  <div id="sidebar-tab" title="Conversations, tags & tools">≡</div>
+  <div id="sidebar" aria-label="Conversation rail">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Conversations</div>
+      <div class="sidebar-buttons">
+        <button id="new-convo-btn" class="sidebar-btn">New chat</button>
+        <button id="rename-convo-btn" class="sidebar-btn">Rename</button>
+      </div>
+      <div id="sidebar-convos"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Tags</div>
+      <div id="sidebar-tags" class="sidebar-tag-list"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Tools</div>
+      <input id="sidebar-search" class="sidebar-input" type="text" placeholder="Search files…"/>
+      <div class="sidebar-buttons" style="margin-top:6px;">
+        <button id="snapshot-btn" class="sidebar-btn">Snapshot</button>
+        <button id="export-btn" class="sidebar-btn">Export</button>
+      </div>
+    </div>
+  </div>
 
   <div class="top-bar">
     <button id="file-btn"  class="file-btn" title="Tap to file last reply; double-tap to file your last message">📁</button>
@@ -1218,7 +1384,6 @@
         body
       );
 
-      // Stub: echo-style reply so you can test wiring if you ever call this directly.
       return Promise.resolve({
         role:"assistant",
         content:
@@ -1336,12 +1501,10 @@
 
   function attachMomentITScripts(){
     // Paste your original MomentIT Firebase/Firestore/T-Suite JS here.
-    // Target #momentit-app, #ping-banner, #acknowledge-btn, #event-log, etc.
   }
 
   function attachActuationLogScripts(){
     // Paste your full MFC / countdown script here.
-    // Wire to #countdown, #lock-time, #day-status, #log-area.
   }
 
   document.addEventListener("DOMContentLoaded",()=>{
@@ -1349,13 +1512,14 @@
     attachActuationLogScripts();
   });
 
-  /* ========= PHYLLO BACKGROUND =================================== */
+  /* ========= PHYLLO BACKGROUND (SLOWED, SOFT SPIN) =============== */
 
   (()=>{
     const T=Math.PI*2,
           c=document.getElementById('bg'),
           x=c.getContext('2d');
     let W=0,H=0,D=1,t=0,run=1;
+    const SPEED=0.35; // global slowdown
     const s={CS:.987,TSI:.10,novelty:.20,presence:.82};
 
     function fit(){
@@ -1376,7 +1540,7 @@
           E=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,
           GA=CS=>{
             const g=Math.PI*(3-Math.sqrt(5)),d=(1-CS)*.02;
-            return g*(1+d*Math.sin(t*.25));
+            return g*(1+d*Math.sin(t*.25*SPEED));
           },
           R=(seed=1234567)=>{
             let s=seed>>>0;
@@ -1396,7 +1560,8 @@
 
       const N=Math.floor(L(600,3200,E(pr))),
             ang=GA(CS),base=L(2.2,6,CS),jit=L(0,1,TSI),
-            spin=nv*.8,breath=1+.045*Math.sin(t*.5),
+            spin=nv*.35, // softer spin factor
+            breath=1+.045*Math.sin(t*.5*SPEED),
             rand=R(123456789^(N<<1));
 
       x.save();
@@ -1406,14 +1571,14 @@
         const a=i*ang+t*spin,r=Math.sqrt(i)*base*breath;
         let px=Math.cos(a)*r,py=Math.sin(a)*r;
 
-        px+=(rand()-.5)*jit*(.6+.6*Math.sin(i*.017+t*.3));
-        py+=(rand()-.5)*jit*(.6+.6*Math.cos(i*.013-t*.25));
+        px+=(rand()-.5)*jit*(.6+.6*Math.sin(i*.017+t*.3*SPEED));
+        py+=(rand()-.5)*jit*(.6+.6*Math.cos(i*.013-t*.25*SPEED));
 
         const scale=maxR/(Math.sqrt(N)*5.8),
               x0=px*scale,y0=py*scale,
               sz=L(1.2,2.8,CS)*(1-.5*TSI),
               p=i/N,
-              h=(210+90*p+120*nv+26*Math.sin(t*.28))%360,
+              h=(210+90*p+120*nv+26*Math.sin(t*.28*SPEED))%360,
               sa=Math.round(L(42,68,CS)),
               lu=Math.round(L(34,62,1-TSI));
 
@@ -1429,7 +1594,7 @@
     let last=performance.now();
     function loop(now){
       const dt=(now-last)/1e3;last=now;
-      if(run)t+=dt;
+      if(run)t+=dt*SPEED;
       draw();
       requestAnimationFrame(loop);
     }
@@ -1446,9 +1611,9 @@
     };
   })();
 
-  /* ========= φ-FIELD CHAT + FILING =============================== */
+  /* ========= φ-FIELD CHAT + FILING + CONVO SIDEBAR =============== */
 
-  const $ = id => document.getElementById(id),
+  const $  = id => document.getElementById(id),
         stream = $('stream'),
         form   = $('form'),
         input  = $('input'),
@@ -1457,7 +1622,16 @@
         filesModal = $('files-modal'),
         modalCloseBtn = $('modal-close-btn'),
         modalList = $('modal-list'),
-        fileCount = $('file-count');
+        fileCount = $('file-count'),
+        sidebar = $('sidebar'),
+        sidebarTab = $('sidebar-tab'),
+        sidebarConvos = $('sidebar-convos'),
+        newConvoBtn = $('new-convo-btn'),
+        renameConvoBtn = $('rename-convo-btn'),
+        sidebarTags = $('sidebar-tags'),
+        sidebarSearch = $('sidebar-search'),
+        snapshotBtn = $('snapshot-btn'),
+        exportBtn = $('export-btn');
 
   function linkify(s){
     return (s||'')
@@ -1465,22 +1639,85 @@
       .replace(/\bhttps?:\/\/[^\s)]+/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
   }
 
-  // Conversation continuity id
-  let convoId = localStorage.getItem('itplus_convo_id_v1');
-  if(!convoId){
-    convoId = 'convo-' + Date.now().toString(36);
-    localStorage.setItem('itplus_convo_id_v1', convoId);
+  const LEGACY_HISTORY_KEY = 'phi_field_history_v1';
+  const CONVOS_KEY = 'phi_convos_v1';
+
+  let convos = [];
+  let convoId = null;
+
+  function loadConvos(){
+    try{
+      const raw = localStorage.getItem(CONVOS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      convos = Array.isArray(parsed) ? parsed : [];
+    }catch(_){ convos = []; }
   }
 
-  // Track in-memory message history
-  const messageLog = [];
+  function saveConvos(){
+    try{
+      localStorage.setItem(CONVOS_KEY, JSON.stringify(convos));
+    }catch(_){}
+  }
 
-  const HISTORY_KEY = 'phi_field_history_v1';
+  function historyKey(){
+    return 'phi_history_' + convoId;
+  }
+
+  function ensureConvoState(){
+    loadConvos();
+    let storedId = localStorage.getItem('itplus_convo_id_v1');
+    const legacy = localStorage.getItem(LEGACY_HISTORY_KEY);
+    const nowIso = new Date().toISOString();
+
+    if(!convos.length && legacy){
+      const id = storedId || ('convo-'+Date.now().toString(36));
+      convos = [{
+        id,
+        title:'Conversation 1',
+        createdAt:nowIso,
+        updatedAt:nowIso,
+        last:''
+      }];
+      localStorage.setItem(historyKey().replace(convoId||'',id), legacy);
+      localStorage.removeItem(LEGACY_HISTORY_KEY);
+      storedId = id;
+    }
+
+    if(!convos.length){
+      const id = 'convo-'+Date.now().toString(36);
+      convos = [{
+        id,
+        title:'Conversation 1',
+        createdAt:nowIso,
+        updatedAt:nowIso,
+        last:''
+      }];
+      storedId = id;
+    }
+
+    convoId = storedId || convos[0].id;
+    localStorage.setItem('itplus_convo_id_v1', convoId);
+    saveConvos();
+  }
+
+  ensureConvoState();
+
+  const messageLog = [];
 
   function saveHistory(){
     try{
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(messageLog));
+      localStorage.setItem(historyKey(), JSON.stringify(messageLog));
     }catch(_){}
+  }
+
+  function touchActiveConvo(lastText){
+    const nowIso = new Date().toISOString();
+    const idx = convos.findIndex(c=>c.id===convoId);
+    if(idx === -1) return;
+    convos[idx].updatedAt = nowIso;
+    if(lastText) convos[idx].last = lastText.slice(0,80);
+    saveConvos();
+    renderConvoList();
   }
 
   function addMsg(role, text, fromHistory){
@@ -1506,6 +1743,7 @@
     messageLog.push(entry);
     if(!fromHistory){
       saveHistory();
+      touchActiveConvo(text);
     }
 
     setTimeout(()=>row.classList.add('active'),10);
@@ -1515,7 +1753,7 @@
 
   function loadHistory(){
     try{
-      const raw = localStorage.getItem(HISTORY_KEY);
+      const raw = localStorage.getItem(historyKey());
       if(!raw) return;
       const parsed = JSON.parse(raw);
       if(!Array.isArray(parsed)) return;
@@ -1526,7 +1764,79 @@
     }catch(_){}
   }
 
-  // Load any prior conversation into the stream
+  function clearStream(){
+    stream.innerHTML = '';
+    messageLog.length = 0;
+  }
+
+  function switchConversation(id){
+    if(id === convoId) return;
+    convoId = id;
+    localStorage.setItem('itplus_convo_id_v1', convoId);
+    clearStream();
+    loadHistory();
+    renderConvoList();
+  }
+
+  function renameConversation(id){
+    const idx = convos.findIndex(c=>c.id===id);
+    if(idx === -1) return;
+    const current = convos[idx].title || 'Conversation';
+    const next = prompt('Rename conversation:', current);
+    if(!next) return;
+    convos[idx].title = next.trim();
+    saveConvos();
+    renderConvoList();
+  }
+
+  function createConversation(){
+    const nowIso = new Date().toISOString();
+    const id = 'convo-'+Date.now().toString(36);
+    const title = 'Conversation ' + (convos.length+1);
+    convos.push({id,title,createdAt:nowIso,updatedAt:nowIso,last:''});
+    saveConvos();
+    switchConversation(id);
+  }
+
+  function renderConvoList(){
+    if(!sidebarConvos) return;
+    sidebarConvos.innerHTML = '';
+    const sorted = convos.slice().sort((a,b)=>{
+      const aa = a.updatedAt || a.createdAt || '';
+      const bb = b.updatedAt || b.createdAt || '';
+      return bb.localeCompare(aa);
+    });
+    sorted.forEach(c=>{
+      const row = document.createElement('div');
+      row.className = 'convo-row' + (c.id===convoId?' active':'');
+      row.dataset.id = c.id;
+
+      const title = document.createElement('div');
+      title.className = 'convo-title';
+      title.textContent = c.title || 'Untitled';
+
+      const meta = document.createElement('div');
+      meta.className = 'convo-meta';
+      const dt = c.updatedAt || c.createdAt;
+      const when = dt ? new Date(dt).toLocaleDateString() : '';
+      const snippet = c.last ? (' · ' + c.last) : '';
+      meta.textContent = (when || '') + snippet;
+
+      row.appendChild(title);
+      row.appendChild(meta);
+
+      row.addEventListener('click',()=>{
+        switchConversation(c.id);
+      });
+      row.addEventListener('dblclick',()=>{
+        renameConversation(c.id);
+      });
+
+      sidebarConvos.appendChild(row);
+    });
+  }
+
+  // initial history load for active convo
   loadHistory();
 
   // Load filed items from localStorage
@@ -1541,6 +1851,7 @@
 
   function saveFiled(){
     localStorage.setItem('itplus_files_v1', JSON.stringify(filed));
+    rebuildTagCloud();
   }
 
   function fileText(text, sourceRole, mode){
@@ -1629,15 +1940,12 @@
     const delta = now - lastClickTime;
 
     if(delta < DOUBLE_TAP_MS){
-      // Double-tap: file last user message
       fileLastOfRole('user','double-tap');
-      lastClickTime = 0; // reset
+      lastClickTime = 0;
     }else{
-      // Single tap: wait a bit to see if becomes a double
       lastClickTime = now;
       setTimeout(()=>{
         if(lastClickTime && (Date.now() - lastClickTime) >= DOUBLE_TAP_MS){
-          // true single tap: file last bot message
           fileLastOfRole('bot','single-tap');
           lastClickTime = 0;
         }
@@ -1688,6 +1996,144 @@
       filesModal.setAttribute('aria-hidden','true');
     }
   });
+
+  /* ========= SIDEBAR: TAG CLOUD, SEARCH, SNAPSHOT, EXPORT ========= */
+
+  function extractTagsFromText(text){
+    const out=[];
+    const re=/#([a-zA-Z0-9_]+)/g;
+    let m;
+    while((m=re.exec(text))) out.push('#'+m[1]);
+    return out;
+  }
+
+  function rebuildTagCloud(){
+    if(!sidebarTags) return;
+    const freq={};
+    filed.forEach(it=>{
+      const baseTags = Array.isArray(it.tags) ? it.tags : [];
+      baseTags.filter(t=>t && t[0]==='#').forEach(t=>{
+        freq[t]=(freq[t]||0)+1;
+      });
+      extractTagsFromText(it.text||'').forEach(t=>{
+        freq[t]=(freq[t]||0)+1;
+      });
+    });
+    const entries = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20);
+    sidebarTags.innerHTML='';
+    entries.forEach(([tag])=>{
+      const span=document.createElement('span');
+      span.className='tag-pill';
+      span.textContent=tag;
+      span.addEventListener('click',()=>{
+        sidebarSearch.value=tag;
+        runFileSearch(tag.replace(/^#/,''));
+      });
+      sidebarTags.appendChild(span);
+    });
+  }
+
+  function runFileSearch(q){
+    q=(q||'').trim();
+    if(!q){
+      addMsg('bot','Enter a search term in the sidebar search box.');
+      return;
+    }
+    const needle=q.toLowerCase();
+    const hits=filed.filter(it=>{
+      const text=(it.text||'').toLowerCase();
+      const tags=(Array.isArray(it.tags)?it.tags.join(' '):'').toLowerCase();
+      return text.includes(needle) || tags.includes(needle);
+    }).slice(0,12);
+
+    if(!hits.length){
+      addMsg('bot','No filed items matched "'+q+'".');
+      return;
+    }
+
+    let out='Search: "'+q+'" → '+hits.length+' match(es).\n\n';
+    hits.forEach((it,idx)=>{
+      const when=it.timeHuman || it.time || it.timestamp || '';
+      const snippet=(it.text||'').slice(0,160).replace(/\s+/g,' ');
+      out+=(idx+1)+') '+(when?when+' · ':'')+snippet+( (it.text||'').length>160 ? '…':'')+'\n';
+    });
+    addMsg('bot', out.trim());
+  }
+
+  function makeSnapshot(){
+    if(!messageLog.length){
+      addMsg('bot','Nothing to snapshot yet in this conversation.');
+      return;
+    }
+    const slice = messageLog.slice(-8);
+    const summary = slice.map(m=>(m.role==='user'?'You: ':'Console: ')+m.text).join('\n');
+    fileText(
+      'SNAPSHOT '+new Date().toLocaleString()+'\n\n'+summary,
+      'snapshot',
+      'snapshot'
+    );
+  }
+
+  function exportConversation(){
+    if(!messageLog.length){
+      addMsg('bot','No messages to export in this conversation yet.');
+      return;
+    }
+    const lines = messageLog.map(m=>(m.role==='user'?'You: ':'Console: ')+m.text);
+    const text = lines.join('\n\n');
+    const blob = new Blob([text],{type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const active = convos.find(c=>c.id===convoId);
+    a.href = url;
+    a.download = (active && active.title ? active.title : 'conversation') + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{
+      URL.revokeObjectURL(url);
+      a.remove();
+    },1000);
+  }
+
+  // initial tag cloud + convo list
+  rebuildTagCloud();
+  renderConvoList();
+
+  // sidebar interactions
+  if(sidebarTab){
+    sidebarTab.addEventListener('click',()=>{
+      sidebar.classList.toggle('open');
+    });
+  }
+
+  if(newConvoBtn){
+    newConvoBtn.addEventListener('click',()=>{
+      createConversation();
+    });
+  }
+
+  if(renameConvoBtn){
+    renameConvoBtn.addEventListener('click',()=>{
+      renameConversation(convoId);
+    });
+  }
+
+  if(sidebarSearch){
+    sidebarSearch.addEventListener('keydown',e=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        runFileSearch(sidebarSearch.value);
+      }
+    });
+  }
+
+  if(snapshotBtn){
+    snapshotBtn.addEventListener('click', makeSnapshot);
+  }
+
+  if(exportBtn){
+    exportBtn.addEventListener('click', exportConversation);
+  }
 
   /* ========= LLM CHAT HANDLER (your Node /chat endpoint) ========= */
 
@@ -1752,8 +2198,8 @@
       "- Drag messages onto the folder (📁) to file them.\n" +
       "- Tap 📁 once to file the last reply.\n" +
       "- Double-tap 📁 to file your last message.\n" +
-      "- Open the cabinet (🗄️) to browse the archive.
-      );
+      "- Open the cabinet (🗄️) to browse the archive."
+    );
   })();
   </script>
 
