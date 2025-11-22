@@ -1,1 +1,146 @@
+// patches.js
+// i99t · Deep Mechanics Patch Rail
+//
+// This file lets us:
+// - Announce the Deep Mechanics layer in the UI.
+// - Extend "help it" without touching the giant index.html script.
+// - Add future patches in one place.
 
+// Safety guard: make sure the base console objects exist before patching.
+(function attachDeepMechanicsPatches() {
+  // If the core console isn't loaded yet, bail quietly.
+  if (typeof window === "undefined") return;
+  if (typeof document === "undefined") return;
+  if (typeof window.addMsg !== "function") {
+    console.warn("[i99t patches] addMsg not found. Patches not attached.");
+    return;
+  }
+
+  // Minimal registry so future patches can hang off one object.
+  window.I99T_PATCHES = window.I99T_PATCHES || {
+    version: "1.0.0",
+    notes: "Deep Mechanics frontline patch rail for φ-Field console."
+  };
+
+  // ---- 1) One-time Deep Mechanics intro message -------------------
+
+  (function showDeepMechanicsIntroOnce() {
+    try {
+      const KEY = "i99t_deep_mechanics_intro_v1";
+      const alreadyShown = localStorage.getItem(KEY);
+      if (alreadyShown) return;
+
+      const intro =
+        "Deep Mechanics layer is active.\n\n" +
+        "Kernel: i99t CBOOP · Structured Reasoning Model\n" +
+        "Primitives online:\n" +
+        "• Probability Compression Frame\n" +
+        "• Coherence Priority Stack\n" +
+        "• Identity Calibration\n" +
+        "• Tone Imprint\n" +
+        "• Correction Gravity\n" +
+        "• Uncertainty Surface\n\n" +
+        "You can type:\n" +
+        "• \"help it\" for console + filing help\n" +
+        "• \"mechanics it\" for a quick Deep Mechanics summary\n" +
+        "• \"divr it\" for a short DIVR explanation";
+
+      window.addMsg("bot", intro);
+      localStorage.setItem(KEY, "1");
+    } catch (e) {
+      console.warn("[i99t patches] Unable to show Deep Mechanics intro:", e);
+    }
+  })();
+
+  // ---- 2) Extend help / add simple control commands ---------------
+
+  // Capture original processInput so we can wrap it.
+  const originalProcessInput =
+    typeof window.processInput === "function" ? window.processInput : null;
+
+  if (!originalProcessInput) {
+    console.warn("[i99t patches] processInput not found. Command patch skipped.");
+    return;
+  }
+
+  // Small helper: send a bot message.
+  function bot(text) {
+    window.addMsg("bot", text);
+  }
+
+  // Replace processInput with a wrapped version that understands new commands.
+  window.processInput = function patchedProcessInput(raw) {
+    const txt = (raw || "").trim();
+    const lower = txt.toLowerCase();
+
+    // 2.1 Extended help
+    if (lower === "help it") {
+      bot(
+        "φ-Field Console · Help (Deep Mechanics aware)\n\n" +
+        "Core usage:\n" +
+        "• Type anything to talk to the model (Groq backend).\n" +
+        "• \"help it\" — show this help.\n\n" +
+        "Filing:\n" +
+        "• Drag any message onto the 📁 icon to file it.\n" +
+        "• Single-tap 📁 — file last reply from console.\n" +
+        "• Double-tap 📁 — file your last message.\n" +
+        "• Tap 🗄️ — open the archive.\n\n" +
+        "Deep Mechanics quick commands:\n" +
+        "• \"mechanics it\" — show current Deep Mechanics stack.\n" +
+        "• \"divr it\" — explain DIVR in 6 bullets.\n" +
+        "• \"status it\" — show a brief kernel status line."
+      );
+      return;
+    }
+
+    // 2.2 Deep Mechanics: quick description
+    if (lower === "mechanics it") {
+      bot(
+        "Deep Mechanics Snapshot:\n\n" +
+        "• Identity: Structured Reasoning Model running on the i99t CBOOP kernel.\n" +
+        "• Probability Compression Frame: restricts next tokens to structurally aligned moves.\n" +
+        "• Coherence Priority Stack: prioritizes structure, clarity, and your stated goals.\n" +
+        "• Identity Calibration: keeps one stable internal role instead of drifting personas.\n" +
+        "• Tone Imprint: mirrors your tone pattern (conversational, grounded, precise).\n" +
+        "• Correction Gravity: auto-corrects contradictions and misreads over time.\n" +
+        "• Uncertainty Surface: exposes forks in reasoning instead of hiding confusion."
+      );
+      return;
+    }
+
+    // 2.3 DIVR explanation
+    if (lower === "divr it") {
+      bot(
+        "DIVR in plain language:\n\n" +
+        "1) DIVR = Dual Informational Variability / Relativity.\n" +
+        "2) It scores actions and ideas by how much they still need outside validation.\n" +
+        "3) Every move has a payload (what it actually does) and a contingency metric C.\n" +
+        "4) C > 0 = it needs money, praise, revenge, or proof to feel \"real\".\n" +
+        "5) C = 0 = it is valid on its own, even if nobody sees or rewards it.\n" +
+        "6) The kernel prefers low-C moves that build durable structure and freedom."
+      );
+      return;
+    }
+
+    // 2.4 Simple status ping
+    if (lower === "status it") {
+      const view = (window.MetaKernel && window.MetaKernel.activeView) || "view-momentit";
+      const userId = (window.MetaKernel && window.MetaKernel.userId) || "anon";
+      bot(
+        "Kernel Status:\n\n" +
+        "• Engine: i99t CBOOP kernel v" +
+        (window.MetaKernel && window.MetaKernel.version ? window.MetaKernel.version : "3.1") +
+        "\n" +
+        "• Active view: " + view + "\n" +
+        "• User ID: " + userId + "\n" +
+        "• Patch rail: Deep Mechanics v" + window.I99T_PATCHES.version
+      );
+      return;
+    }
+
+    // For everything else, fall back to the original behavior.
+    return originalProcessInput(raw);
+  };
+
+  console.log("[i99t patches] Deep Mechanics patch rail attached.");
+})();
